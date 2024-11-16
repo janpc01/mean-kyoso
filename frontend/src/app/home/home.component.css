@@ -76,16 +76,17 @@
   
   .card-image {
     position: absolute;
-    top: 86px;
+    top: 102px;
     left: 50%;
     transform: translateX(-50%);
     width: 328px;
-    height: 274px;
+    height: 278px;
     display: flex;
     align-items: center;
     justify-content: center;
     background-size: cover;
     background-position: center;
+    border-radius: 4px;
   }
   
   .card-info {
@@ -99,7 +100,7 @@
   }
   
   .info-field {
-    margin-bottom: -10px;
+    margin-bottom: 10px;
     padding: 0px;
     background: transparent;
     border: 1px solid rgba(204, 204, 204, 0.5);
@@ -112,7 +113,7 @@
   
   .season-text {
     position: absolute;
-    top: 23px;
+    top: 40px;
     left: 50%;
     transform: translateX(-50%);
     color: #000000;
