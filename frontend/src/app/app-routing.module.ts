@@ -9,6 +9,11 @@ import { BoardUserComponent } from './board-user/board-user.component';
 import { BoardModeratorComponent } from './board-moderator/board-moderator.component';
 import { BoardAdminComponent } from './board-admin/board-admin.component';
 
+// Import card-related components
+import { CardListComponent } from './cards/card-list/card-list.component';
+import { CardCreateComponent } from './cards/card-create/card-create.component';
+import { CardEditComponent } from './cards/card-edit/card-edit.component';
+
 const routes: Routes = [
   { path: 'home', component: HomeComponent },
   { path: 'login', component: LoginComponent },
@@ -17,6 +22,13 @@ const routes: Routes = [
   { path: 'user', component: BoardUserComponent },
   { path: 'mod', component: BoardModeratorComponent },
   { path: 'admin', component: BoardAdminComponent },
+  
+  // Card functionality routes under `/user`
+  { path: 'user/cards', component: CardListComponent },
+  { path: 'user/cards/create', component: CardCreateComponent },
+  { path: 'user/cards/edit/:id', component: CardEditComponent },
+
+  // Default route
   { path: '', redirectTo: 'home', pathMatch: 'full' }
 ];
 

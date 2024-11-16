@@ -6,19 +6,22 @@ const Role = db.role;
 
 verifyToken = async (req, res, next) => {
     try {
-        let token = req.session.token;
+        // Retrieve the token from the x-access-token header
+        let token = req.headers['x-access-token']; 
 
         if (!token) {
             return res.status(403).send({ message: "No token provided!" });
         }
 
+        // Verify the token
         const decoded = jwt.verify(token, config.secret);
-        req.userId = decoded.id;
+        req.userId = decoded.id; // Save userId to the request object
         next();
     } catch (err) {
         res.status(401).send({ message: "Unauthorized!" });
     }
 };
+
 
 isAdmin = async (req, res, next) => {
     try {

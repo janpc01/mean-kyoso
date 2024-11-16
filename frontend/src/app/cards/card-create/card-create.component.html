@@ -1,0 +1,16 @@
+<div>
+    <h2>Create Card</h2>
+    <form (submit)="createCard()">
+      <label>Name:</label>
+      <input [(ngModel)]="card.name" name="name" required />
+      <label>Belt Rank:</label>
+      <input [(ngModel)]="card.beltRank" name="beltRank" required />
+      <label>Achievement:</label>
+      <input [(ngModel)]="card.achievement" name="achievement" required />
+      <label>Club Name:</label>
+      <input [(ngModel)]="card.clubName" name="clubName" required />
+      <label>Image URL:</label>
+      <input [(ngModel)]="card.image" name="image" required />
+      <button type="submit">Create</button>
+    </form>
+</div>

@@ -1,10 +1,18 @@
-const { Card } = require('../models/card.model'); // Adjust path as needed
+const mongoose = require('mongoose');
+const Card = require('../models/card.model'); // Adjust path as needed
+const { ObjectId } = mongoose.Types;
 
 // Create a new card
 exports.createCard = async (req, res) => {
     try {
         const { name, beltRank, achievement, clubName, image } = req.body;
-        const userId = req.userId; // Assuming authJwt middleware sets req.userId
+        const userId = req.userId;
+
+        console.log('Received data:', { name, beltRank, achievement, clubName, image, userId });
+
+        if (!userId) {
+            return res.status(400).json({ message: "User ID is required" });
+        }
 
         const newCard = new Card({
             name,
@@ -13,12 +21,19 @@ exports.createCard = async (req, res) => {
             clubName,
             image,
             userId,
+            printCount: 0 // Add default print count
         });
 
-        await newCard.save();
-        res.status(201).json(newCard);
+        const savedCard = await newCard.save();
+        console.log('Card saved successfully:', savedCard);
+        res.status(201).json(savedCard);
     } catch (err) {
-        res.status(500).json({ message: "Failed to create card", error: err.message });
+        console.error('Error in createCard:', err);
+        res.status(500).json({ 
+            message: "Failed to create card", 
+            error: err.message,
+            stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+        });
     }
 };
 
@@ -66,11 +81,21 @@ exports.getUserCards = async (req, res) => {
     try {
         const { userId } = req.params;
 
-        const userCards = await Card.find({ userId });
+        // Validate if userId is a valid MongoDB ObjectId
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(400).json({ message: "Invalid user ID format" });
+        }
 
+        const userCards = await Card.find({ userId: userId });
+
+        console.log('User cards:', userCards);
         res.status(200).json(userCards);
     } catch (err) {
-        res.status(500).json({ message: "Failed to retrieve cards", error: err.message });
+        console.error('Error in getUserCards:', err); // Add this for debugging
+        res.status(500).json({ 
+            message: "Failed to retrieve cards", 
+            error: err.message 
+        });
     }
 };
 

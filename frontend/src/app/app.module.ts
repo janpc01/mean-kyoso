@@ -14,6 +14,9 @@ import { BoardModeratorComponent } from './board-moderator/board-moderator.compo
 import { BoardUserComponent } from './board-user/board-user.component';
 
 import { httpInterceptorProviders } from '../_helpers/http.interceptor';
+import { CardListComponent } from './cards/card-list/card-list.component';
+import { CardCreateComponent } from './cards/card-create/card-create.component';
+import { CardEditComponent } from './cards/card-edit/card-edit.component';
 
 @NgModule({
   declarations: [
@@ -24,7 +27,10 @@ import { httpInterceptorProviders } from '../_helpers/http.interceptor';
     ProfileComponent,
     BoardAdminComponent,
     BoardModeratorComponent,
-    BoardUserComponent
+    BoardUserComponent,
+    CardListComponent,
+    CardCreateComponent,
+    CardEditComponent
   ],
   imports: [
     BrowserModule,

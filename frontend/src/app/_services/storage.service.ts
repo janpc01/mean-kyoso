@@ -6,7 +6,6 @@ const USER_KEY = 'auth-user';
   providedIn: 'root'
 })
 export class StorageService {
-
   constructor() { }
 
   clean(): void {
@@ -15,7 +14,15 @@ export class StorageService {
 
   public saveUser(user: any): void {
     window.sessionStorage.removeItem(USER_KEY);
-    window.sessionStorage.setItem(USER_KEY, JSON.stringify(user));
+    // Ensure we're storing the user ID along with other user data
+    const userData = {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      roles: user.roles,
+      token: user.token
+    };
+    window.sessionStorage.setItem(USER_KEY, JSON.stringify(userData));
   }
 
   public getUser(): any {
@@ -23,14 +30,16 @@ export class StorageService {
     if (user) {
       return JSON.parse(user);
     }
-    return {};
+    return null; // Changed from empty object to null for better null checking
   }
 
   public isLoggedIn(): boolean {
     const user = window.sessionStorage.getItem(USER_KEY);
-    if (user) {
-      return true;
-    }
-    return false;
+    return user !== null;
+  }
+
+  public getUserId(): string | null {
+    const user = this.getUser();
+    return user ? user.id : null;
   }
 }
