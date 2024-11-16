@@ -20,6 +20,9 @@
           <a href="/user" class="nav-link" routerLink="user">Dashboard</a>
         </li>
       }
+      <li class="nav-item">
+        <a href="/game-rules" class="nav-link" routerLink="game-rules">Game Rules</a>
+      </li>
     </ul>
 
     @if (!isLoggedIn) {
@@ -33,6 +36,9 @@
       </ul>
     } @else {
       <ul class="navbar-nav ml-auto">
+        <li class="nav-item">
+          <a href="/game-rules" class="nav-link" routerLink="game-rules">Game Rules</a>
+        </li>
         <li class="nav-item">
           <a href="/profile" class="nav-link" routerLink="profile">Profile</a>
         </li>
