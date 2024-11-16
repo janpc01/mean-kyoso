@@ -22,10 +22,15 @@ db.mongoose.connect(`mongodb://${dbConfig.HOST}:${dbConfig.PORT}/${dbConfig.DB}`
     });
 
 const corsOptions = {
-    origin: "http://localhost:8081"
+    origin: "http://localhost:8081",
+    credentials: true
 };
 
+// Apply CORS middleware
 app.use(cors(corsOptions));
+
+// Handle preflight requests
+app.options('*', cors(corsOptions));
 
 // Parse requests of content-type - application/json
 app.use(express.json());
