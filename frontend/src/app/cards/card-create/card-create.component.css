@@ -1,44 +1,50 @@
 /* Container styling */
 div {
     max-width: 500px;
-    margin: 0 auto; /* Center the form horizontally */
+    margin: 0 auto;
     padding: 20px;
-    background-color: #f9f9f9;
+    background-image: url('/assets/images/card-bg.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  }
-  
-  /* Heading styles */
-  h2 {
+}
+
+/* Heading styles */
+h2 {
     text-align: center;
     color: #333;
     margin-bottom: 20px;
-  }
-  
-  /* Form element styling */
-  form {
+}
+
+/* Form element styling */
+form {
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 20px;
+    border-radius: 8px;
     display: flex;
     flex-direction: column;
     gap: 15px;
-  }
-  
-  /* Label styling */
-  label {
+}
+
+/* Label styling */
+label {
     font-size: 14px;
     font-weight: bold;
     color: #555;
-  }
-  
-  /* Input field styling */
-  input {
+}
+
+/* Input field styling */
+input {
     padding: 10px;
     font-size: 14px;
     border: 1px solid #ccc;
     border-radius: 4px;
-  }
-  
-  /* Button styling */
-  button {
+}
+
+/* Button styling */
+button {
     padding: 10px 15px;
     font-size: 16px;
     font-weight: bold;
@@ -48,14 +54,14 @@ div {
     border-radius: 4px;
     cursor: pointer;
     transition: background-color 0.3s ease;
-  }
-  
-  button:hover {
+}
+
+button:hover {
     background-color: #0056b3;
-  }
-  
-  /* Adjust button spacing */
-  button[type="submit"] {
+}
+
+/* Adjust button spacing */
+button[type="submit"] {
     margin-top: 10px;
-  }
+}
   
