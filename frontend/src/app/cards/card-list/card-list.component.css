@@ -9,9 +9,9 @@ div {
 .card-list {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;
-    gap: 10px;
-    padding: 0px;
+    justify-content: flex-start;
+    gap: 5px;
+    padding: 20px;
 }
 
 .card {
@@ -24,7 +24,15 @@ div {
     border-radius: 30px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     position: relative;
+    margin-bottom: 10px;
+}
+
+.card-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     margin-bottom: 20px;
+    width: 450px;
 }
 
 .card-image {
@@ -74,11 +82,54 @@ div {
 }
 
 .card-actions {
-    position: absolute;
-    bottom: -40px;
-    left: 50%;
-    transform: translateX(-50%);
     display: flex;
+    justify-content: center;
     gap: 10px;
+    padding: 10px;
+    margin-top: 15px;
+    width: 100%;
+}
+
+.card-actions button, .card-actions a {
+    padding: 8px 16px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.card-actions button:hover, .card-actions a:hover {
+    background-color: #0056b3;
+}
+
+h2 {
+    text-align: center;
+    font-weight: bold;
+    font-size: 3rem;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.create-button-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 30px;
+}
+
+.create-button-container a {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+.create-button-container a:hover {
+    background-color: #0056b3;
 }
   
