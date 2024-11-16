@@ -24,13 +24,17 @@
       <div *ngIf="searchQuery.trim() === ''" class="no-search-message">
         Enter a card name to search
       </div>
-      <div *ngFor="let card of searchResults" class="card">
-        <h3>{{ card.name }}</h3>
-        <p>Belt Rank: {{ card.beltRank }}</p>
-        <p>Achievement: {{ card.achievement }}</p>
-        <p>Club: {{ card.clubName }}</p>
-        <img [src]="card.image" alt="{{ card.name }}" style="width:100px;">
-        <p>Print Count: {{ card.printCount }}</p>
+      <div *ngFor="let card of searchResults" class="card-wrapper">
+        <div class="card">
+          <div class="season-text">2024/25</div>
+          <div class="card-image" [style.backgroundImage]="'url(' + card.image + ')'"></div>
+          <div class="card-info">
+            <div class="info-field">{{ card.name }}</div>
+            <div class="info-field">{{ card.beltRank }}</div>
+            <div class="info-field">{{ card.achievement }}</div>
+            <div class="info-field">{{ card.clubName }}</div>
+          </div>
+        </div>
       </div>
       <div *ngIf="searchQuery.trim() && searchResults.length === 0" class="no-results-message">
         No cards found matching "{{ searchQuery }}"
