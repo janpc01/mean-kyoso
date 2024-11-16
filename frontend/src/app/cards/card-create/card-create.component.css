@@ -46,16 +46,20 @@ input {
     border: 1px solid rgba(204, 204, 204, 0.5);
     border-radius: 4px;
     font-size: 14px;
-    color: #333;
+    color: #000000;
     text-align: center;
     font-weight: bold;
 }
 
 input::placeholder {
-    color: rgba(51, 51, 51, 0.7);
+    color: #000000;
     font-size: 14px;
     text-align: center;
     font-weight: bold;
+}
+
+input:focus::placeholder {
+    color: transparent;
 }
 
 .create-button {
