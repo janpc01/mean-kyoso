@@ -1,7 +1,14 @@
 <div class="card-container">
   <div class="season-text">2024/25</div>
   <div class="image-area">
-    <input [(ngModel)]="card.image" name="image" placeholder="Image URL" required />
+    <button class="upload-button" (click)="fileInput.click()">Click to upload image</button>
+    <input 
+      #fileInput
+      type="file"
+      accept="image/*"
+      (change)="onFileSelected($event)"
+      style="display: none;"
+    />
   </div>
   <div class="info-area">
     <div class="info-field">

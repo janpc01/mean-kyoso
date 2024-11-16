@@ -68,5 +68,34 @@ export class CardCreateComponent {
       },
     });
   }
+
+  onFileSelected(event: any): void {
+    const file = event.target.files[0];
+    if (file) {
+      // For now, just create a temporary URL for the selected image
+      this.card.image = URL.createObjectURL(file);
+      
+      // Here you would typically upload the file to your server
+      // and get back a URL to store in this.card.image
+      // this.uploadImage(file);
+    }
+  }
+
+  // Add this method to handle actual file upload to server
+  private uploadImage(file: File): void {
+    const formData = new FormData();
+    formData.append('image', file);
+    
+    // You'll need to implement this in your CardService
+    // this.cardService.uploadImage(formData).subscribe({
+    //   next: (response) => {
+    //     this.card.image = response.imageUrl;
+    //   },
+    //   error: (error) => {
+    //     console.error('Error uploading image:', error);
+    //     alert('Error uploading image');
+    //   }
+    // });
+  }
 }
   
