@@ -27,6 +27,13 @@
     border: 1px solid #ddd;
     border-radius: 4px;
     font-size: 16px;
+    transition: border-color 0.3s;
+  }
+  
+  .search-input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
   }
   
   .search-results {
@@ -67,4 +74,13 @@
     color: #333;
     margin-bottom: 20px;
     text-align: center;
+  }
+  
+  .no-search-message, .no-results-message {
+    text-align: center;
+    color: #666;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    margin-top: 20px;
   }

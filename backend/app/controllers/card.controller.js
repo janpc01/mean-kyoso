@@ -137,12 +137,7 @@ exports.getAllCards = async (req, res) => {
     try {
       const query = req.query.q;
       const cards = await Card.find({
-        $or: [
-          { name: { $regex: query, $options: 'i' } },
-          { beltRank: { $regex: query, $options: 'i' } },
-          { achievement: { $regex: query, $options: 'i' } },
-          { clubName: { $regex: query, $options: 'i' } }
-        ]
+        name: { $regex: query, $options: 'i' }  // Only search by name
       }).populate('userId', 'username');
       
       res.status(200).json(cards);

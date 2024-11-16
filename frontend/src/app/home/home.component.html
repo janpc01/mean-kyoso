@@ -8,13 +8,13 @@
   <!-- Right side - Search Cards -->
   <div class="right-panel">
     <div class="search-container">
-      <h2>Search Cards</h2>
+      <h2>Search Cards by Name</h2>
       <div class="search-box">
         <input 
           type="text" 
           [(ngModel)]="searchQuery" 
           (keyup)="onSearch()"
-          placeholder="Search cards..."
+          placeholder="Enter card name..."
           class="search-input"
         >
       </div>
@@ -22,6 +22,9 @@
     
     <!-- Search Results -->
     <div class="search-results">
+      <div *ngIf="searchQuery.trim() === ''" class="no-search-message">
+        Enter a card name to search
+      </div>
       <div *ngFor="let card of searchResults" class="card">
         <h3>{{ card.name }}</h3>
         <p>Belt Rank: {{ card.beltRank }}</p>
@@ -29,6 +32,9 @@
         <p>Club: {{ card.clubName }}</p>
         <img [src]="card.image" alt="{{ card.name }}" style="width:100px;">
         <p>Print Count: {{ card.printCount }}</p>
+      </div>
+      <div *ngIf="searchQuery.trim() && searchResults.length === 0" class="no-results-message">
+        No cards found matching "{{ searchQuery }}"
       </div>
     </div>
   </div>

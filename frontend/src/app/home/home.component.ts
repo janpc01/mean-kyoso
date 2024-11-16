@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { CardService } from '../_services/card.service';
 
 @Component({
@@ -6,17 +6,12 @@ import { CardService } from '../_services/card.service';
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent {
   searchQuery: string = '';
   searchResults: any[] = [];
   searchTimeout: any;
 
   constructor(private cardService: CardService) {}
-
-  ngOnInit(): void {
-    // Load all cards initially
-    this.loadAllCards();
-  }
 
   onSearch(): void {
     // Clear existing timeout
@@ -29,7 +24,7 @@ export class HomeComponent implements OnInit {
       if (this.searchQuery.trim()) {
         this.searchCards();
       } else {
-        this.loadAllCards();
+        this.searchResults = []; // Clear results when search is empty
       }
     }, 300);
   }
@@ -41,17 +36,6 @@ export class HomeComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error searching cards:', err);
-      }
-    });
-  }
-
-  private loadAllCards(): void {
-    this.cardService.getAllCards().subscribe({
-      next: (data) => {
-        this.searchResults = data;
-      },
-      error: (err) => {
-        console.error('Error loading cards:', err);
       }
     });
   }
