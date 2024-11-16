@@ -14,6 +14,8 @@ import { CardListComponent } from './cards/card-list/card-list.component';
 import { CardCreateComponent } from './cards/card-create/card-create.component';
 import { CardEditComponent } from './cards/card-edit/card-edit.component';
 
+import { GameRulesComponent } from './cards/game-rules/game-rules.component';
+
 const routes: Routes = [
   { path: 'home', component: HomeComponent },
   { path: 'login', component: LoginComponent },
@@ -29,7 +31,9 @@ const routes: Routes = [
   { path: 'user/cards/edit/:id', component: CardEditComponent },
 
   // Default route
-  { path: '', redirectTo: 'home', pathMatch: 'full' }
+  { path: '', redirectTo: 'home', pathMatch: 'full' },
+
+  { path: 'game-rules', component: GameRulesComponent },
 ];
 
 @NgModule({

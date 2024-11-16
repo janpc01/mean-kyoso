@@ -1,0 +1,118 @@
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f5f5f5;
+    color: #333;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .game-container {
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+  
+  .title {
+    font-size: 2.5rem;
+    color: #1a73e8;
+    margin: 0;
+  }
+  
+  .subtitle {
+    font-size: 1.2rem;
+    color: #757575;
+    margin-top: 0.5rem;
+  }
+  
+  .section {
+    margin-bottom: 2rem;
+  }
+  
+  .section-title {
+    font-size: 1.8rem;
+    color: #333;
+    border-bottom: 2px solid #1a73e8;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .win-rules {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+  
+  .win-rule {
+    background: #f1f9ff;
+    padding: 1rem;
+    border-left: 5px solid #1a73e8;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    line-height: 1.5;
+  }
+  
+  .rule-number {
+    font-weight: bold;
+    color: #1a73e8;
+    margin-right: 0.5rem;
+  }
+  
+  .highlight {
+    color: #e91e63;
+    font-weight: bold;
+  }
+  
+  .rules-list {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .rules-list li {
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    border-left: 5px solid #1a73e8;
+    background: #f9f9f9;
+    border-radius: 8px;
+  }
+  
+  .game-modes {
+    display: flex;
+    gap: 2rem;
+    margin-top: 1rem;
+  }
+  
+  .mode {
+    flex: 1;
+    background: #f1f9ff;
+    padding: 1.5rem;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .mode-title {
+    font-size: 1.5rem;
+    color: #1a73e8;
+    margin-bottom: 1rem;
+  }
+  
+  p {
+    font-size: 1rem;
+    color: #555;
+  }
+  
+  @media (max-width: 768px) {
+    .game-modes {
+      flex-direction: column;
+    }
+}
+    

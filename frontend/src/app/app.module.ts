@@ -17,6 +17,7 @@ import { httpInterceptorProviders } from '../_helpers/http.interceptor';
 import { CardListComponent } from './cards/card-list/card-list.component';
 import { CardCreateComponent } from './cards/card-create/card-create.component';
 import { CardEditComponent } from './cards/card-edit/card-edit.component';
+import { GameRulesComponent } from './cards/game-rules/game-rules.component';
 
 @NgModule({
   declarations: [
@@ -30,7 +31,8 @@ import { CardEditComponent } from './cards/card-edit/card-edit.component';
     BoardUserComponent,
     CardListComponent,
     CardCreateComponent,
-    CardEditComponent
+    CardEditComponent,
+    GameRulesComponent
   ],
   imports: [
     BrowserModule,
