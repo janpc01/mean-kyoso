@@ -1,4 +1,4 @@
-const { Card } = require('../models/user.model'); // Adjust path as needed
+const { Card } = require('../models/card.model'); // Adjust path as needed
 
 // Create a new card
 exports.createCard = async (req, res) => {
@@ -71,5 +71,26 @@ exports.getUserCards = async (req, res) => {
         res.status(200).json(userCards);
     } catch (err) {
         res.status(500).json({ message: "Failed to retrieve cards", error: err.message });
+    }
+};
+
+// Increment the print count for a card
+exports.incrementPrintCount = async (req, res) => {
+    try {
+        const { cardId } = req.params;
+
+        const card = await Card.findByIdAndUpdate(
+            cardId,
+            { $inc: { printCount: 1 } }, // Increment printCount by 1
+            { new: true } // Return the updated card
+        );
+
+        if (!card) {
+            return res.status(404).send("Card not found.");
+        }
+
+        res.status(200).json({ message: "Card print count updated.", card });
+    } catch (err) {
+        res.status(500).send("Failed to update print count.");
     }
 };

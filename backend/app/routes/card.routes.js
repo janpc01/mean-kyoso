@@ -34,4 +34,10 @@ module.exports = function (app) {
         [authJwt.verifyToken], // Ensure the user is authenticated
         controller.getUserCards
     );
+
+    app.put(
+        "/api/cards/:cardId/print",
+        [authJwt.verifyToken], // Ensure the user is authenticated
+        controller.incrementPrintCount
+    );
 };
