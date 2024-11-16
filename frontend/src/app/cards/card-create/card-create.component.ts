@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { CardService } from '../../_services/card.service';
 import { AuthService } from '../../_services/auth.service';
+import { ImageCroppedEvent } from 'ngx-image-cropper';
 
 interface Card {
   name: string;
@@ -27,11 +28,24 @@ export class CardCreateComponent {
     image: '',
   };
 
+  showCropperModal = false;
+  imageFile: File | undefined = undefined;
+  croppedImage: string | undefined = undefined;
+
   constructor(
     private cardService: CardService,
     private authService: AuthService,
     private router: Router
   ) {}
+
+  private closeCropperModal(clearImage: boolean = true): void {
+    this.showCropperModal = false;  // Hide the modal
+  
+    if (clearImage) {
+      this.imageFile = undefined;    // Reset imageFile only when explicitly clearing
+      this.croppedImage = undefined; // Reset croppedImage only when explicitly clearing
+    }
+  }
 
   createCard(): void {
     const token = this.authService.getToken();
@@ -69,58 +83,43 @@ export class CardCreateComponent {
     });
   }
 
-  onFileSelected(event: any): void {
-    const file = event.target.files[0];
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
 
-    // Check file type
+    if (!file) {
+      return;
+    }
+
     if (!file.type.match(/image\/(jpeg|png|gif)/)) {
       alert('Only image files (JPEG, PNG, GIF) are allowed');
       return;
     }
 
-    // Check file size (e.g., max 5MB)
-  if (file.size > 5 * 1024 * 1024) {
-    alert('File size must be less than 5MB');
+    if (file.size > 5 * 1024 * 1024) {
+      alert('File size must be less than 5MB');
       return;
     }
 
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e: any) => {
-        const img = new Image();
-        img.src = e.target.result;
-        
-        img.onload = () => {
-          // Create canvas
-          const canvas = document.createElement('canvas');
-          const ctx = canvas.getContext('2d');
-          
-          // Calculate new dimensions (max width/height of 800px)
-          let width = img.width;
-          let height = img.height;
-          const maxSize = 800;
-          
-          if (width > height && width > maxSize) {
-            height = Math.round((height * maxSize) / width);
-            width = maxSize;
-          } else if (height > maxSize) {
-            width = Math.round((width * maxSize) / height);
-            height = maxSize;
-          }
-          
-          // Set canvas dimensions
-          canvas.width = width;
-          canvas.height = height;
-          
-          // Draw image on canvas
-          ctx?.drawImage(img, 0, 0, width, height);
-          
-          // Get compressed image as Base64 string
-          this.card.image = canvas.toDataURL('image/jpeg', 0.7); // 0.7 is the quality (0-1)
-        };
-      };
-      reader.readAsDataURL(file);
+    this.imageFile = file;
+    this.showCropperModal = true;
+  }
+
+  imageCropped(event: ImageCroppedEvent): void {
+    this.croppedImage = event.base64 || undefined;
+  }
+
+  saveCroppedImage(): void {
+    if (this.croppedImage) {
+      this.card.image = this.croppedImage; // Save the cropped image to the card
+      console.log('Cropped Image Saved:', this.card.image);
+      this.closeCropperModal(false);      // Do not reset croppedImage
     }
   }
-}
   
+  cancelCropping(): void {
+    this.closeCropperModal();
+  }
+
+  
+}

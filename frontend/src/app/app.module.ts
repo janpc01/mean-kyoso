@@ -1,7 +1,10 @@
 import { NgModule } from '@angular/core';
+import { Component } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -18,6 +21,7 @@ import { CardListComponent } from './cards/card-list/card-list.component';
 import { CardCreateComponent } from './cards/card-create/card-create.component';
 import { CardEditComponent } from './cards/card-edit/card-edit.component';
 import { GameRulesComponent } from './cards/game-rules/game-rules.component';
+import { ImageCropperComponent } from 'ngx-image-cropper';
 
 @NgModule({
   declarations: [
@@ -38,7 +42,10 @@ import { GameRulesComponent } from './cards/game-rules/game-rules.component';
     BrowserModule,
     AppRoutingModule,
     FormsModule,
-    HttpClientModule
+    HttpClientModule,
+    CommonModule,
+    ImageCropperComponent,
+    RouterModule
   ],
   providers: [httpInterceptorProviders],
   bootstrap: [AppComponent]
