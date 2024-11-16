@@ -1,15 +1,20 @@
 <div>
     <h2>Your Cards</h2>
-    <a routerLink="/user/cards/create">Create New Card</a>
-    <div *ngFor="let card of cards" class="card">
-      <h3>{{ card.name }}</h3>
-      <p>Belt Rank: {{ card.beltRank }}</p>
-      <p>Achievement: {{ card.achievement }}</p>
-      <p>Club: {{ card.clubName }}</p>
-      <img [src]="card.image" alt="{{ card.name }}" style="width:100px;">
-      <p>Print Count: {{ card.printCount }}</p>
-      <button (click)="incrementPrint(card._id)">Print</button>
-      <button (click)="deleteCard(card._id)">Delete</button>
-      <a [routerLink]="['/user/edit', card._id]">Edit</a>
+    <div class="create-button-container">
+      <a routerLink="/user/cards/create">Create New Card</a>
     </div>
-</div>
+    <div class="card-list">
+      <div *ngFor="let card of cards" class="card">
+        <h3>{{ card.name }}</h3>
+        <p>Belt Rank: {{ card.beltRank }}</p>
+        <p>Achievement: {{ card.achievement }}</p>
+        <p>Club: {{ card.clubName }}</p>
+        <img [src]="card.image" alt="{{ card.name }}" style="width:100px;">
+        <p>Print Count: {{ card.printCount }}</p>
+        <button (click)="incrementPrint(card._id)">Print</button>
+        <button (click)="deleteCard(card._id)">Delete</button>
+        <a [routerLink]="['/user/edit', card._id]">Edit</a>
+      </div>
+    </div>
+  </div>
+  
