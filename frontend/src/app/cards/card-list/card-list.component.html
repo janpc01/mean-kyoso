@@ -1,20 +1,24 @@
 <div>
     <h2>Your Cards</h2>
     <div class="create-button-container">
-      <a routerLink="/user/cards/create">Create New Card</a>
+        <a routerLink="/user/cards/create">Create New Card</a>
     </div>
     <div class="card-list">
-      <div *ngFor="let card of cards" class="card">
-        <h3>{{ card.name }}</h3>
-        <p>Belt Rank: {{ card.beltRank }}</p>
-        <p>Achievement: {{ card.achievement }}</p>
-        <p>Club: {{ card.clubName }}</p>
-        <img [src]="card.image" alt="{{ card.name }}" style="width:100px;">
-        <p>Print Count: {{ card.printCount }}</p>
-        <button (click)="incrementPrint(card._id)">Print</button>
-        <button (click)="deleteCard(card._id)">Delete</button>
-        <a [routerLink]="['/user/edit', card._id]">Edit</a>
-      </div>
+        <div *ngFor="let card of cards" class="card">
+            <div class="season-text">2024/25</div>
+            <div class="card-image" [style.backgroundImage]="'url(' + card.image + ')'"></div>
+            <div class="card-info">
+                <div class="info-field">{{ card.name }}</div>
+                <div class="info-field">{{ card.beltRank }}</div>
+                <div class="info-field">{{ card.achievement }}</div>
+                <div class="info-field">{{ card.clubName }}</div>
+            </div>
+            <div class="card-actions">
+                <button (click)="incrementPrint(card._id)">Print</button>
+                <button (click)="deleteCard(card._id)">Delete</button>
+                <a [routerLink]="['/user/edit', card._id]">Edit</a>
+            </div>
+        </div>
     </div>
-  </div>
+</div>
   
