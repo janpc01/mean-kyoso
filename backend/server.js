@@ -4,6 +4,7 @@ const cors = require('cors');
 const cookieSession = require('cookie-session');
 const dbConfig = require('./app/config/db.config');
 const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
 
 const app = express();
 
@@ -33,10 +34,10 @@ app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
 
 // Parse requests of content-type - application/json
-app.use(express.json());
+app.use(bodyParser.json({ limit: '10mb' }));
 
 // Parse requests of content-type - application/x-www-form-urlencoded
-app.use(express.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
 
 app.use(
     cookieSession({
