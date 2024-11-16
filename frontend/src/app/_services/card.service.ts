@@ -56,4 +56,6 @@ export class CardService {
   searchCards(query: string): Observable<any> {
     return this.http.get(`${this.baseUrl}/search?q=${query}`);
   }
+
+  
 }

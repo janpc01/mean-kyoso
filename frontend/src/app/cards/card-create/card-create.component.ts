@@ -71,31 +71,56 @@ export class CardCreateComponent {
 
   onFileSelected(event: any): void {
     const file = event.target.files[0];
-    if (file) {
-      // For now, just create a temporary URL for the selected image
-      this.card.image = URL.createObjectURL(file);
-      
-      // Here you would typically upload the file to your server
-      // and get back a URL to store in this.card.image
-      // this.uploadImage(file);
-    }
-  }
 
-  // Add this method to handle actual file upload to server
-  private uploadImage(file: File): void {
-    const formData = new FormData();
-    formData.append('image', file);
-    
-    // You'll need to implement this in your CardService
-    // this.cardService.uploadImage(formData).subscribe({
-    //   next: (response) => {
-    //     this.card.image = response.imageUrl;
-    //   },
-    //   error: (error) => {
-    //     console.error('Error uploading image:', error);
-    //     alert('Error uploading image');
-    //   }
-    // });
+    // Check file type
+    if (!file.type.match(/image\/(jpeg|png|gif)/)) {
+      alert('Only image files (JPEG, PNG, GIF) are allowed');
+      return;
+    }
+
+    // Check file size (e.g., max 5MB)
+  if (file.size > 5 * 1024 * 1024) {
+    alert('File size must be less than 5MB');
+      return;
+    }
+
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        const img = new Image();
+        img.src = e.target.result;
+        
+        img.onload = () => {
+          // Create canvas
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          
+          // Calculate new dimensions (max width/height of 800px)
+          let width = img.width;
+          let height = img.height;
+          const maxSize = 800;
+          
+          if (width > height && width > maxSize) {
+            height = Math.round((height * maxSize) / width);
+            width = maxSize;
+          } else if (height > maxSize) {
+            width = Math.round((width * maxSize) / height);
+            height = maxSize;
+          }
+          
+          // Set canvas dimensions
+          canvas.width = width;
+          canvas.height = height;
+          
+          // Draw image on canvas
+          ctx?.drawImage(img, 0, 0, width, height);
+          
+          // Get compressed image as Base64 string
+          this.card.image = canvas.toDataURL('image/jpeg', 0.7); // 0.7 is the quality (0-1)
+        };
+      };
+      reader.readAsDataURL(file);
+    }
   }
 }
   
