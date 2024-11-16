@@ -10,6 +10,8 @@ import { StorageService } from '../../_services/storage.service';
 })
 export class CardListComponent implements OnInit {
   cards: any[] = [];
+  showDeleteModal = false;
+  cardToDelete: any = null;
 
   constructor(
     private cardService: CardService, 
@@ -75,5 +77,22 @@ export class CardListComponent implements OnInit {
       },
       error: (err) => console.error('Error incrementing print count:', err),
     });
+  }
+
+  openDeleteModal(card: any): void {
+    this.cardToDelete = card;
+    this.showDeleteModal = true;
+  }
+
+  closeDeleteModal(): void {
+    this.showDeleteModal = false;
+    this.cardToDelete = null;
+  }
+
+  confirmDelete(): void {
+    if (this.cardToDelete) {
+      this.deleteCard(this.cardToDelete._id);
+      this.closeDeleteModal();
+    }
   }
 }

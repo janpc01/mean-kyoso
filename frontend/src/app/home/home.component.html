@@ -35,6 +35,7 @@
             <div class="info-field">{{ card.clubName }}</div>
           </div>
         </div>
+        <button class="buy-button">Buy</button>
       </div>
       <div *ngIf="searchQuery.trim() && searchResults.length === 0" class="no-results-message">
         No cards found matching "{{ searchQuery }}"

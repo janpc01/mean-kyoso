@@ -16,10 +16,21 @@
                 </div>
             </div>
             <div class="card-actions">
-                <button (click)="incrementPrint(card._id)">Print</button>
-                <button (click)="deleteCard(card._id)">Delete</button>
-                <a [routerLink]="['/user/edit', card._id]">Edit</a>
+                <button (click)="incrementPrint(card._id)">Buy</button>
+                <button (click)="openDeleteModal(card)">Delete</button>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal" *ngIf="showDeleteModal">
+    <div class="modal-content">
+        <h3>Confirm Delete</h3>
+        <p>Are you sure you want to delete this card?</p>
+        <div class="modal-actions">
+            <button (click)="confirmDelete()">Yes, Delete</button>
+            <button (click)="closeDeleteModal()">Cancel</button>
         </div>
     </div>
 </div>
