@@ -119,3 +119,34 @@ exports.incrementPrintCount = async (req, res) => {
         res.status(500).send("Failed to update print count.");
     }
 };
+
+// Get all cards
+exports.getAllCards = async (req, res) => {
+    try {
+      const cards = await Card.find()
+        .populate('userId', 'username')
+        .sort({ createdAt: -1 });
+      res.status(200).json(cards);
+    } catch (err) {
+      res.status(500).json({ message: "Failed to retrieve cards", error: err.message });
+    }
+  };
+  
+  // Search cards
+  exports.searchCards = async (req, res) => {
+    try {
+      const query = req.query.q;
+      const cards = await Card.find({
+        $or: [
+          { name: { $regex: query, $options: 'i' } },
+          { beltRank: { $regex: query, $options: 'i' } },
+          { achievement: { $regex: query, $options: 'i' } },
+          { clubName: { $regex: query, $options: 'i' } }
+        ]
+      }).populate('userId', 'username');
+      
+      res.status(200).json(cards);
+    } catch (err) {
+      res.status(500).json({ message: "Failed to search cards", error: err.message });
+    }
+  };

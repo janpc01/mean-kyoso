@@ -40,4 +40,7 @@ module.exports = function (app) {
         [authJwt.verifyToken], // Ensure the user is authenticated
         controller.incrementPrintCount
     );
+
+    app.get("/api/cards/all", controller.getAllCards);
+    app.get("/api/cards/search", controller.searchCards);
 };

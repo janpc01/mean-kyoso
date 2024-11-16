@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { UserService } from '../_services/user.service';
+import { CardService } from '../_services/card.service';
 
 @Component({
   selector: 'app-home',
@@ -7,21 +7,51 @@ import { UserService } from '../_services/user.service';
   styleUrls: ['./home.component.css']
 })
 export class HomeComponent implements OnInit {
-  content?: string;
+  searchQuery: string = '';
+  searchResults: any[] = [];
+  searchTimeout: any;
 
-  constructor(private userService: UserService) { }
+  constructor(private cardService: CardService) {}
 
   ngOnInit(): void {
-    this.userService.getPublicContent().subscribe({
-      next: data => {
-        this.content = data;
+    // Load all cards initially
+    this.loadAllCards();
+  }
+
+  onSearch(): void {
+    // Clear existing timeout
+    if (this.searchTimeout) {
+      clearTimeout(this.searchTimeout);
+    }
+
+    // Set new timeout to prevent too many API calls
+    this.searchTimeout = setTimeout(() => {
+      if (this.searchQuery.trim()) {
+        this.searchCards();
+      } else {
+        this.loadAllCards();
+      }
+    }, 300);
+  }
+
+  private searchCards(): void {
+    this.cardService.searchCards(this.searchQuery).subscribe({
+      next: (data) => {
+        this.searchResults = data;
       },
-      error: err => {console.log(err)
-        if (err.error) {
-          this.content = JSON.parse(err.error).message;
-        } else {
-          this.content = "Error with status: " + err.status;
-        }
+      error: (err) => {
+        console.error('Error searching cards:', err);
+      }
+    });
+  }
+
+  private loadAllCards(): void {
+    this.cardService.getAllCards().subscribe({
+      next: (data) => {
+        this.searchResults = data;
+      },
+      error: (err) => {
+        console.error('Error loading cards:', err);
       }
     });
   }

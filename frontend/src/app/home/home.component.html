@@ -1,5 +1,35 @@
-<div class="container">
-    <header class="jumbotron">
-      <p>{{ content }}</p>
-    </header>
+<div class="home-container">
+  <!-- Left side - Create Card Form -->
+  <div class="left-panel">
+    <h2>Create Your Card!</h2>
+    <app-card-create></app-card-create>
+  </div>
+
+  <!-- Right side - Search Cards -->
+  <div class="right-panel">
+    <div class="search-container">
+      <h2>Search Cards</h2>
+      <div class="search-box">
+        <input 
+          type="text" 
+          [(ngModel)]="searchQuery" 
+          (keyup)="onSearch()"
+          placeholder="Search cards..."
+          class="search-input"
+        >
+      </div>
+    </div>
+    
+    <!-- Search Results -->
+    <div class="search-results">
+      <div *ngFor="let card of searchResults" class="card">
+        <h3>{{ card.name }}</h3>
+        <p>Belt Rank: {{ card.beltRank }}</p>
+        <p>Achievement: {{ card.achievement }}</p>
+        <p>Club: {{ card.clubName }}</p>
+        <img [src]="card.image" alt="{{ card.name }}" style="width:100px;">
+        <p>Print Count: {{ card.printCount }}</p>
+      </div>
+    </div>
+  </div>
 </div>

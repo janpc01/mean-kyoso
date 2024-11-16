@@ -47,4 +47,13 @@ export class CardService {
     const headers = this.createHeaders(token);
     return this.http.delete(`${this.baseUrl}/${cardId}`, { headers });
   }
+
+  // Search cards
+  getAllCards(): Observable<any> {
+    return this.http.get(`${this.baseUrl}/all`);
+  }
+
+  searchCards(query: string): Observable<any> {
+    return this.http.get(`${this.baseUrl}/search?q=${query}`);
+  }
 }
