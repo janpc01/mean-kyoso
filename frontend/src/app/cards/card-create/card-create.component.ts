@@ -55,7 +55,8 @@ export class CardCreateComponent {
       return;
     }
 
-    // Validate all required fields
+    console.log('Creating card with data:', this.card);
+
     const requiredFields = {
       name: 'Name',
       beltRank: 'Belt Rank',
@@ -88,8 +89,11 @@ export class CardCreateComponent {
     const file = input.files?.[0];
 
     if (!file) {
+      console.log('No file selected');
       return;
     }
+
+    console.log('File selected:', file);
 
     if (!file.type.match(/image\/(jpeg|png|gif)/)) {
       alert('Only image files (JPEG, PNG, GIF) are allowed');
@@ -106,7 +110,17 @@ export class CardCreateComponent {
   }
 
   imageCropped(event: ImageCroppedEvent): void {
-    this.croppedImage = event.base64 || undefined;
+    console.log('ImageCroppedEvent:', event);
+    if (event.blob) {
+      const reader = new FileReader();
+      reader.readAsDataURL(event.blob);
+      reader.onloadend = () => {
+        this.croppedImage = reader.result as string;
+        console.log('Image cropped:', this.croppedImage);
+      };
+    } else {
+      console.error('No blob data available for cropping.');
+    }
   }
 
   saveCroppedImage(): void {
@@ -116,7 +130,7 @@ export class CardCreateComponent {
       this.closeCropperModal(false);      // Do not reset croppedImage
     }
   }
-  
+
   cancelCropping(): void {
     this.closeCropperModal();
   }
