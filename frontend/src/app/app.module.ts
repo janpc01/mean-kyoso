@@ -26,6 +26,7 @@ import { ImageCropperComponent } from 'ngx-image-cropper';
 import { CartService } from './_services/cart.service';
 import { CartComponent } from './cart/cart.component';
 import { CheckoutComponent } from './checkout/checkout.component';
+import { OrderService } from './_services/order.service';
 
 @NgModule({
   declarations: [
@@ -56,7 +57,8 @@ import { CheckoutComponent } from './checkout/checkout.component';
   ],
   providers: [
     httpInterceptorProviders,
-    CartService
+    CartService,
+    OrderService
   ],
   bootstrap: [AppComponent]
 })

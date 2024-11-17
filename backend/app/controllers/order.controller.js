@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const { Order, OrderItem } = require('../models/order.model');
 const Card = require('../models/card.model');
 
@@ -91,16 +92,33 @@ exports.getOrderById = async (req, res) => {
 exports.updateOrderStatus = async (req, res) => {
     try {
         const { orderStatus } = req.body;
-        const order = await Order.findById(req.params.orderId);
-
+        const orderId = req.params.orderId;
+        
+        const order = await Order.findById(orderId);
         if (!order) {
             return res.status(404).json({ message: "Order not found" });
+        }
+
+        // Validate the status is one of the allowed values
+        const validStatuses = ["Processing", "Shipped", "Delivered", "Cancelled"];
+        if (!validStatuses.includes(orderStatus)) {
+            return res.status(400).json({ message: "Invalid order status" });
         }
 
         order.orderStatus = orderStatus;
         await order.save();
 
-        res.status(200).json(order);
+        // Return populated order data
+        const populatedOrder = await Order.findById(orderId)
+            .populate({
+                path: 'items',
+                populate: {
+                    path: 'card',
+                    model: 'Card'
+                }
+            });
+
+        res.status(200).json(populatedOrder);
     } catch (err) {
         res.status(500).json({ message: "Error updating order status", error: err.message });
     }

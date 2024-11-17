@@ -1,6 +1,8 @@
 const { authJwt } = require('../middlewares');
 const controller = require('../controllers/order.controller');
 
+console.log(controller);
+
 module.exports = function(app) {
     app.use(function(req, res, next) {
         res.header(
@@ -34,7 +36,7 @@ module.exports = function(app) {
     // Update order status (could be restricted to admin/moderator)
     app.put(
         "/api/orders/:orderId/status",
-        [authJwt.verifyToken, authJwt.isModeratorOrAdmin],
+        [authJwt.verifyToken, authJwt.isAdmin],
         controller.updateOrderStatus
     );
 };
