@@ -3,6 +3,7 @@ import { CardService } from '../../_services/card.service';
 import { AuthService } from '../../_services/auth.service';
 import { StorageService } from '../../_services/storage.service';
 import { CartService } from '../../_services/cart.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-card-list',
@@ -18,7 +19,8 @@ export class CardListComponent implements OnInit {
     private cardService: CardService, 
     private authService: AuthService,
     private storageService: StorageService,
-    private cartService: CartService
+    private cartService: CartService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -67,6 +69,7 @@ export class CardListComponent implements OnInit {
 
   addToCart(card: any): void {
     this.cartService.addToCart(card);
+    this.router.navigate(['/cart']);
   }
 
   openDeleteModal(card: any): void {

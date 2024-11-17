@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
 import { CardService } from '../_services/card.service';
+import { Router } from '@angular/router';
+import { CartService } from '../_services/cart.service';
 
 @Component({
   selector: 'app-home',
@@ -11,7 +13,11 @@ export class HomeComponent {
   searchResults: any[] = [];
   searchTimeout: any;
 
-  constructor(private cardService: CardService) {}
+  constructor(
+    private cardService: CardService,
+    private cartService: CartService,
+    private router: Router
+  ) {}
 
   onSearch(): void {
     // Clear existing timeout
@@ -38,5 +44,10 @@ export class HomeComponent {
         console.error('Error searching cards:', err);
       }
     });
+  }
+
+  addToCart(card: any): void {
+    this.cartService.addToCart(card);
+    this.router.navigate(['/cart']);
   }
 }
