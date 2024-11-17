@@ -34,7 +34,7 @@ export class CheckoutComponent implements OnInit {
         addressLine1: ['', Validators.required],
         addressLine2: [''],
         city: ['', Validators.required],
-        province: [''],
+        province: ['', Validators.required],
         postalCode: ['', Validators.required],
         country: ['', Validators.required]
       }),
@@ -67,7 +67,7 @@ export class CheckoutComponent implements OnInit {
           addressLine1: shippingInfo.addressLine1,
           addressLine2: shippingInfo.addressLine2,
           city: shippingInfo.city,
-          state: shippingInfo.state,
+          state: shippingInfo.province,
           postalCode: shippingInfo.postalCode,
           country: shippingInfo.country,
           phone: shippingInfo.phone
@@ -85,7 +85,7 @@ export class CheckoutComponent implements OnInit {
             },
             error: (error) => {
               console.error('Error creating order:', error);
-              // Handle error (show message to user)
+              alert('There was an error processing your order. Please try again.');
               this.isSubmitting = false;
             }
           });

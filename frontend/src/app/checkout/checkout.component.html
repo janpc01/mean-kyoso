@@ -9,32 +9,53 @@
         <div class="form-group">
           <label for="fullName">Full Name</label>
           <input id="fullName" type="text" formControlName="fullName">
+          <div class="error-message" *ngIf="checkoutForm.get('shipping.fullName')?.touched && checkoutForm.get('shipping.fullName')?.errors?.['required']">
+            Full name is required
+          </div>
         </div>
   
         <div class="form-group">
           <label for="phone">Phone Number</label>
           <input id="phone" type="tel" formControlName="phone">
+          <div class="error-message" *ngIf="checkoutForm.get('shipping.phone')?.touched && checkoutForm.get('shipping.phone')?.errors?.['required']">
+            Phone number is required
+          </div>
         </div>
   
         <div class="form-group">
           <label for="email">Email Address</label>
           <input id="email" type="email" formControlName="email">
+          <div class="error-message" *ngIf="checkoutForm.get('shipping.email')?.touched && checkoutForm.get('shipping.email')?.errors?.['required']">
+            Email is required
+          </div>
+          <div class="error-message" *ngIf="checkoutForm.get('shipping.email')?.touched && checkoutForm.get('shipping.email')?.errors?.['email']">
+            Please enter a valid email address
+          </div>
         </div>
   
         <div class="form-group">
           <label for="addressLine1">Street Address</label>
           <input id="addressLine1" type="text" formControlName="addressLine1">
+          <div class="error-message" *ngIf="checkoutForm.get('shipping.addressLine1')?.touched && checkoutForm.get('shipping.addressLine1')?.errors?.['required']">
+            Street address is required
+          </div>
         </div>
   
         <div class="form-row">
           <div class="form-group">
             <label for="city">City</label>
             <input id="city" type="text" formControlName="city">
+            <div class="error-message" *ngIf="checkoutForm.get('shipping.city')?.touched && checkoutForm.get('shipping.city')?.errors?.['required']">
+              City is required
+            </div>
           </div>
   
           <div class="form-group">
             <label for="province">Province</label>
             <input id="province" type="text" formControlName="province">
+            <div class="error-message" *ngIf="checkoutForm.get('shipping.province')?.touched && checkoutForm.get('shipping.province')?.errors?.['required']">
+              Province is required
+            </div>
           </div>
         </div>
   
@@ -42,11 +63,17 @@
           <div class="form-group">
             <label for="postalCode">Postal Code</label>
             <input id="postalCode" type="text" formControlName="postalCode">
+            <div class="error-message" *ngIf="checkoutForm.get('shipping.postalCode')?.touched && checkoutForm.get('shipping.postalCode')?.errors?.['required']">
+              Postal code is required
+            </div>
           </div>
   
           <div class="form-group">
             <label for="country">Country</label>
             <input id="country" type="text" formControlName="country">
+            <div class="error-message" *ngIf="checkoutForm.get('shipping.country')?.touched && checkoutForm.get('shipping.country')?.errors?.['required']">
+              Country is required
+            </div>
           </div>
         </div>
       </div>
@@ -99,6 +126,8 @@
         </div>
       </div>
   
-      <button type="submit" class="submit-button">Complete Purchase</button>
+      <button type="submit" class="submit-button" [disabled]="isSubmitting">
+        {{ isSubmitting ? 'Processing...' : 'Complete Purchase' }}
+      </button>
     </form>
   </div>

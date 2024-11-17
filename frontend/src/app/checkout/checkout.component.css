@@ -78,3 +78,17 @@
   .submit-button:hover {
     background-color: #218838;
   }
+  
+  .error-message {
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+  }
+  
+  input.ng-touched.ng-invalid {
+    border-color: #dc3545;
+  }
+  
+  input.ng-touched.ng-valid {
+    border-color: #28a745;
+  }
