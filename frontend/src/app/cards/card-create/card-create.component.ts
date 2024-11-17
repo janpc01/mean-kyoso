@@ -116,7 +116,6 @@ export class CardCreateComponent {
       reader.readAsDataURL(event.blob);
       reader.onloadend = () => {
         this.croppedImage = reader.result as string;
-        console.log('Image cropped:', this.croppedImage);
       };
     } else {
       console.error('No blob data available for cropping.');
