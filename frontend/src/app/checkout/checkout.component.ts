@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ValidatorFn, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CartService } from '../_services/cart.service';
 import { OrderService } from '../_services/order.service';
@@ -40,13 +40,13 @@ export class CheckoutComponent implements OnInit {
       }),
       sameAsShipping: [true],
       billing: this.fb.group({
-        fullName: [''],
-        addressLine1: [''],
+        fullName: ['', this.conditionalValidator(() => !this.checkoutForm?.get('sameAsShipping')?.value, Validators.required)],
+        addressLine1: ['', this.conditionalValidator(() => !this.checkoutForm?.get('sameAsShipping')?.value, Validators.required)],
         addressLine2: [''],
-        city: [''],
-        province: [''],
-        postalCode: [''],
-        country: ['']
+        city: ['', this.conditionalValidator(() => !this.checkoutForm?.get('sameAsShipping')?.value, Validators.required)],
+        province: ['', this.conditionalValidator(() => !this.checkoutForm?.get('sameAsShipping')?.value, Validators.required)],
+        postalCode: ['', this.conditionalValidator(() => !this.checkoutForm?.get('sameAsShipping')?.value, Validators.required)],
+        country: ['', this.conditionalValidator(() => !this.checkoutForm?.get('sameAsShipping')?.value, Validators.required)]
       }),
       payment: this.fb.group({
         cardNumber: ['', [
@@ -100,7 +100,7 @@ export class CheckoutComponent implements OnInit {
             },
             error: (error) => {
               console.error('Error creating order:', error);
-              alert('There was an error processing your order. Please try again.');
+              alert('There was an error processing your payment. Please try again.');
               this.isSubmitting = false;
             }
           });
@@ -114,5 +114,14 @@ export class CheckoutComponent implements OnInit {
       const shippingValue = this.checkoutForm.get('shipping')?.value;
       this.checkoutForm.get('billing')?.patchValue(shippingValue);
     }
+  }
+
+  private conditionalValidator(condition: () => boolean, validator: ValidatorFn): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      if (condition()) {
+        return validator(control);
+      }
+      return null;
+    };
   }
 }
