@@ -30,10 +30,11 @@ export class CheckoutComponent implements OnInit {
       shipping: this.fb.group({
         fullName: ['', Validators.required],
         phone: ['', Validators.required],
+        email: ['', [Validators.required, Validators.email]],
         addressLine1: ['', Validators.required],
         addressLine2: [''],
         city: ['', Validators.required],
-        state: [''],
+        province: [''],
         postalCode: ['', Validators.required],
         country: ['', Validators.required]
       }),
@@ -43,7 +44,7 @@ export class CheckoutComponent implements OnInit {
         addressLine1: [''],
         addressLine2: [''],
         city: [''],
-        state: [''],
+        province: [''],
         postalCode: [''],
         country: ['']
       })
@@ -92,11 +93,11 @@ export class CheckoutComponent implements OnInit {
     }
   }
 
-  onSameAsShippingChange() {
+  onSameAsShippingChange(): void {
     const sameAsShipping = this.checkoutForm.get('sameAsShipping')?.value;
     if (sameAsShipping) {
-      const shipping = this.checkoutForm.get('shipping')?.value;
-      this.checkoutForm.get('billing')?.patchValue(shipping);
+      const shippingValue = this.checkoutForm.get('shipping')?.value;
+      this.checkoutForm.get('billing')?.patchValue(shippingValue);
     }
   }
 }

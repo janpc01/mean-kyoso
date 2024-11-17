@@ -12,8 +12,8 @@
         </div>
   
         <div class="form-group">
-          <label for="phoneNumber">Phone Number</label>
-          <input id="phoneNumber" type="tel" formControlName="phoneNumber">
+          <label for="phone">Phone Number</label>
+          <input id="phone" type="tel" formControlName="phone">
         </div>
   
         <div class="form-group">
@@ -22,8 +22,8 @@
         </div>
   
         <div class="form-group">
-          <label for="street">Street Address</label>
-          <input id="street" type="text" formControlName="street">
+          <label for="addressLine1">Street Address</label>
+          <input id="addressLine1" type="text" formControlName="addressLine1">
         </div>
   
         <div class="form-row">
@@ -53,12 +53,14 @@
   
       <!-- Billing Information -->
       <div class="form-section">
-        <div class="checkbox-group">
-          <input type="checkbox" id="sameAsShipping" formControlName="sameAsShipping" (change)="onSameAsShippingChange()">
-          <label for="sameAsShipping">Billing address same as shipping?</label>
+        <div class="form-group">
+          <label>
+            <input type="checkbox" formControlName="sameAsShipping" (change)="onSameAsShippingChange()">
+            Billing address same as shipping
+          </label>
         </div>
   
-        <div formGroupName="billing" [class.hidden]="checkoutForm.get('sameAsShipping')?.value">
+        <div class="form-section" formGroupName="billing" [hidden]="checkoutForm.get('sameAsShipping')?.value">
           <h3>Billing Information</h3>
           
           <div class="form-group">
@@ -67,8 +69,8 @@
           </div>
   
           <div class="form-group">
-            <label for="billingStreet">Street Address</label>
-            <input id="billingStreet" type="text" formControlName="street">
+            <label for="billingAddressLine1">Street Address</label>
+            <input id="billingAddressLine1" type="text" formControlName="addressLine1">
           </div>
   
           <div class="form-row">
