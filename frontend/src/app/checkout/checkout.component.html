@@ -1,0 +1,102 @@
+<div class="checkout-container">
+    <h2>Checkout</h2>
+    
+    <form [formGroup]="checkoutForm" (ngSubmit)="onSubmit()">
+      <!-- Shipping Information -->
+      <div class="form-section" formGroupName="shipping">
+        <h3>Shipping Information</h3>
+        
+        <div class="form-group">
+          <label for="fullName">Full Name</label>
+          <input id="fullName" type="text" formControlName="fullName">
+        </div>
+  
+        <div class="form-group">
+          <label for="phoneNumber">Phone Number</label>
+          <input id="phoneNumber" type="tel" formControlName="phoneNumber">
+        </div>
+  
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input id="email" type="email" formControlName="email">
+        </div>
+  
+        <div class="form-group">
+          <label for="street">Street Address</label>
+          <input id="street" type="text" formControlName="street">
+        </div>
+  
+        <div class="form-row">
+          <div class="form-group">
+            <label for="city">City</label>
+            <input id="city" type="text" formControlName="city">
+          </div>
+  
+          <div class="form-group">
+            <label for="province">Province</label>
+            <input id="province" type="text" formControlName="province">
+          </div>
+        </div>
+  
+        <div class="form-row">
+          <div class="form-group">
+            <label for="postalCode">Postal Code</label>
+            <input id="postalCode" type="text" formControlName="postalCode">
+          </div>
+  
+          <div class="form-group">
+            <label for="country">Country</label>
+            <input id="country" type="text" formControlName="country">
+          </div>
+        </div>
+      </div>
+  
+      <!-- Billing Information -->
+      <div class="form-section">
+        <div class="checkbox-group">
+          <input type="checkbox" id="sameAsShipping" formControlName="sameAsShipping" (change)="onSameAsShippingChange()">
+          <label for="sameAsShipping">Billing address same as shipping?</label>
+        </div>
+  
+        <div formGroupName="billing" [class.hidden]="checkoutForm.get('sameAsShipping')?.value">
+          <h3>Billing Information</h3>
+          
+          <div class="form-group">
+            <label for="billingFullName">Full Name</label>
+            <input id="billingFullName" type="text" formControlName="fullName">
+          </div>
+  
+          <div class="form-group">
+            <label for="billingStreet">Street Address</label>
+            <input id="billingStreet" type="text" formControlName="street">
+          </div>
+  
+          <div class="form-row">
+            <div class="form-group">
+              <label for="billingCity">City</label>
+              <input id="billingCity" type="text" formControlName="city">
+            </div>
+  
+            <div class="form-group">
+              <label for="billingProvince">Province</label>
+              <input id="billingProvince" type="text" formControlName="province">
+            </div>
+          </div>
+  
+          <div class="form-row">
+            <div class="form-group">
+              <label for="billingPostalCode">Postal Code</label>
+              <input id="billingPostalCode" type="text" formControlName="postalCode">
+            </div>
+  
+            <div class="form-group">
+              <label for="billingCountry">Country</label>
+              <input id="billingCountry" type="text" formControlName="country">
+            </div>
+          </div>
+        </div>
+      </div>
+  
+      <button type="submit" class="submit-button">Complete Purchase</button>
+    </form>
+  </div>

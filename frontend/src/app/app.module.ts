@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { ReactiveFormsModule } from '@angular/forms';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -24,6 +25,7 @@ import { GameRulesComponent } from './cards/game-rules/game-rules.component';
 import { ImageCropperComponent } from 'ngx-image-cropper';
 import { CartService } from './_services/cart.service';
 import { CartComponent } from './cart/cart.component';
+import { CheckoutComponent } from './checkout/checkout.component';
 
 @NgModule({
   declarations: [
@@ -39,7 +41,8 @@ import { CartComponent } from './cart/cart.component';
     CardCreateComponent,
     CardEditComponent,
     GameRulesComponent,
-    CartComponent
+    CartComponent,
+    CheckoutComponent
   ],
   imports: [
     BrowserModule,
@@ -48,7 +51,8 @@ import { CartComponent } from './cart/cart.component';
     HttpClientModule,
     CommonModule,
     ImageCropperComponent,
-    RouterModule
+    RouterModule,
+    ReactiveFormsModule
   ],
   providers: [
     httpInterceptorProviders,

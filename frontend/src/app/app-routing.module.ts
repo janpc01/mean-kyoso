@@ -17,6 +17,7 @@ import { CardEditComponent } from './cards/card-edit/card-edit.component';
 
 import { GameRulesComponent } from './cards/game-rules/game-rules.component';
 import { CartComponent } from './cart/cart.component';
+import { CheckoutComponent } from './checkout/checkout.component';
 
 const routes: Routes = [
   { path: 'home', component: HomeComponent },
@@ -31,6 +32,10 @@ const routes: Routes = [
   { path: 'user/cards', component: CardListComponent },
   { path: 'user/cards/create', component: CardCreateComponent },
   { path: 'user/cards/edit/:id', component: CardEditComponent },
+
+
+  // Checkout routes under `/checkout`
+  { path: 'checkout', component: CheckoutComponent },
 
   // Default route
   { path: '', redirectTo: 'home', pathMatch: 'full' },
