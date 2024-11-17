@@ -126,6 +126,54 @@
         </div>
       </div>
   
+      <!-- Payment Information -->
+      <div class="form-section" formGroupName="payment">
+        <h3>Payment Information</h3>
+        
+        <div class="form-group">
+          <label for="cardHolder">Card Holder Name</label>
+          <input id="cardHolder" type="text" formControlName="cardHolder">
+          <div class="error-message" *ngIf="checkoutForm.get('payment.cardHolder')?.touched && checkoutForm.get('payment.cardHolder')?.errors?.['required']">
+            Card holder name is required
+          </div>
+        </div>
+  
+        <div class="form-group">
+          <label for="cardNumber">Card Number</label>
+          <input id="cardNumber" type="text" formControlName="cardNumber" maxlength="16">
+          <div class="error-message" *ngIf="checkoutForm.get('payment.cardNumber')?.touched && checkoutForm.get('payment.cardNumber')?.errors?.['required']">
+            Card number is required
+          </div>
+          <div class="error-message" *ngIf="checkoutForm.get('payment.cardNumber')?.touched && checkoutForm.get('payment.cardNumber')?.errors?.['pattern']">
+            Please enter a valid 16-digit card number
+          </div>
+        </div>
+  
+        <div class="form-row">
+          <div class="form-group">
+            <label for="expiryDate">Expiry Date</label>
+            <input id="expiryDate" type="text" formControlName="expiryDate" placeholder="MM/YY" maxlength="5">
+            <div class="error-message" *ngIf="checkoutForm.get('payment.expiryDate')?.touched && checkoutForm.get('payment.expiryDate')?.errors?.['required']">
+              Expiry date is required
+            </div>
+            <div class="error-message" *ngIf="checkoutForm.get('payment.expiryDate')?.touched && checkoutForm.get('payment.expiryDate')?.errors?.['pattern']">
+              Please enter a valid date (MM/YY)
+            </div>
+          </div>
+  
+          <div class="form-group">
+            <label for="cvv">CVV</label>
+            <input id="cvv" type="text" formControlName="cvv" maxlength="4">
+            <div class="error-message" *ngIf="checkoutForm.get('payment.cvv')?.touched && checkoutForm.get('payment.cvv')?.errors?.['required']">
+              CVV is required
+            </div>
+            <div class="error-message" *ngIf="checkoutForm.get('payment.cvv')?.touched && checkoutForm.get('payment.cvv')?.errors?.['pattern']">
+              Please enter a valid CVV
+            </div>
+          </div>
+        </div>
+      </div>
+  
       <button type="submit" class="submit-button" [disabled]="isSubmitting">
         {{ isSubmitting ? 'Processing...' : 'Complete Purchase' }}
       </button>

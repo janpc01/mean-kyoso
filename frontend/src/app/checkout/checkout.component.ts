@@ -47,6 +47,21 @@ export class CheckoutComponent implements OnInit {
         province: [''],
         postalCode: [''],
         country: ['']
+      }),
+      payment: this.fb.group({
+        cardNumber: ['', [
+          Validators.required,
+          Validators.pattern(/^[0-9]{16}$/)
+        ]],
+        cardHolder: ['', Validators.required],
+        expiryDate: ['', [
+          Validators.required,
+          Validators.pattern(/^(0[1-9]|1[0-2])\/([0-9]{2})$/)
+        ]],
+        cvv: ['', [
+          Validators.required,
+          Validators.pattern(/^[0-9]{3,4}$/)
+        ]]
       })
     });
   }

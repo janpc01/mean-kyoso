@@ -92,3 +92,23 @@
   input.ng-touched.ng-valid {
     border-color: #28a745;
   }
+  
+  input[type="text"].ng-invalid.ng-touched {
+    border-color: #dc3545;
+  }
+  
+  input[type="text"][formControlName="cardNumber"],
+  input[type="text"][formControlName="cvv"] {
+    font-family: monospace;
+    letter-spacing: 0.1em;
+  }
+  
+  input[type="text"][formControlName="expiryDate"] {
+    width: 80px;
+    text-align: center;
+  }
+  
+  input[type="text"][formControlName="cvv"] {
+    width: 80px;
+    text-align: center;
+  }
