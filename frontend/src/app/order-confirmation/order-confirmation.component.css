@@ -128,16 +128,25 @@
   }
   
   .quantity-info {
+    width: 100%;
+    text-align: center;
     margin-top: 10px;
-    padding: 10px;
+    padding: 15px;
     background: #f8f9fa;
-    border-radius: 4px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
   }
   
   .quantity-info p {
-    margin: 5px 0;
-    font-size: 0.9em;
-    color: #666;
+    margin: 8px 0;
+    font-size: 16px;
+    color: #333;
+    font-weight: 500;
+  }
+  
+  .quantity-info p:last-child {
+    font-weight: bold;
+    color: black;
   }
   
   .ordered-items {

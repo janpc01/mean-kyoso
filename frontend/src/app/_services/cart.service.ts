@@ -40,7 +40,7 @@ export class CartService {
         name: card.name,
         image: card.image,
         quantity: 1,
-        price: 2.99 // Set your default price
+        price: card.price
       });
     }
     
