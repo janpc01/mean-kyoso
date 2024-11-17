@@ -8,6 +8,24 @@
   
     <div class="order-details" *ngIf="orderDetails">
       <h3>Order Details</h3>
+      
+      <div class="ordered-items">
+        <h4>Ordered Items</h4>
+        <div class="card-list">
+          <div class="card-item" *ngFor="let item of orderDetails.items">
+            <div class="card-image">
+              <img [src]="item.card.image" [alt]="item.card.name">
+            </div>
+            <div class="card-info">
+              <h5>{{ item.card.name }}</h5>
+              <p>Quantity: {{ item.quantity }}</p>
+              <p>Price: ${{ item.card.price }}</p>
+              <p>Subtotal: ${{ item.quantity * item.card.price }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="shipping-info">
         <h4>Shipping Address</h4>
         <p>{{ orderDetails.shippingAddress.fullName }}</p>

@@ -17,6 +17,11 @@ export interface ShippingAddress {
 export interface OrderItem {
   cardId: string;
   quantity: number;
+  card?: {
+    name: string;
+    image: string;
+    price: number;
+  };
 }
 
 export interface Order {
