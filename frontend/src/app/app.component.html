@@ -1,9 +1,12 @@
 <div id="app">
   <nav class="navbar navbar-expand navbar-dark bg-dark">
     <a href="#" class="navbar-brand">Kyoso Cards</a>
-    <ul class="navbar-nav mr-auto" routerLinkActive="active">
+    <ul class="navbar-nav mr-auto">
       <li class="nav-item">
         <a href="/home" class="nav-link" routerLink="home">Home </a>
+      </li>
+      <li class="nav-item">
+        <a href="/game-rules" class="nav-link" routerLink="game-rules">Game Rules</a>
       </li>
       @if (showAdminBoard) {
         <li class="nav-item">
@@ -17,12 +20,9 @@
       }
       @if (isLoggedIn) {
         <li class="nav-item">
-          <a href="/user" class="nav-link" routerLink="user">Dashboard</a>
+          <a href="/user/cards" class="nav-link" routerLink="user/cards">View Your Cards</a>
         </li>
       }
-      <li class="nav-item">
-        <a href="/game-rules" class="nav-link" routerLink="game-rules">Game Rules</a>
-      </li>
     </ul>
 
     @if (!isLoggedIn) {
@@ -36,9 +36,6 @@
       </ul>
     } @else {
       <ul class="navbar-nav ml-auto">
-        <li class="nav-item">
-          <a href="/game-rules" class="nav-link" routerLink="game-rules">Game Rules</a>
-        </li>
         <li class="nav-item">
           <a href="/profile" class="nav-link" routerLink="profile">Profile</a>
         </li>
