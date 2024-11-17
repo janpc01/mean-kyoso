@@ -12,12 +12,18 @@
       <div class="ordered-items">
         <h4>Ordered Items</h4>
         <div class="card-list">
-          <div class="card-item" *ngFor="let item of orderDetails.items">
-            <div class="card-image">
-              <img [src]="item.card.image" [alt]="item.card.name">
+          <div *ngFor="let item of orderDetails.items" class="card-wrapper">
+            <div class="card">
+              <div class="season-text">2024/25</div>
+              <div class="card-image" [style.backgroundImage]="'url(' + item.card.image + ')'"></div>
+              <div class="card-info">
+                <div class="info-field">{{ item.card.name }}</div>
+                <div class="info-field">{{ item.card.beltRank }}</div>
+                <div class="info-field">{{ item.card.achievement }}</div>
+                <div class="info-field">{{ item.card.clubName }}</div>
+              </div>
             </div>
-            <div class="card-info">
-              <h5>{{ item.card.name }}</h5>
+            <div class="quantity-info">
               <p>Quantity: {{ item.quantity }}</p>
               <p>Price: ${{ item.card.price }}</p>
               <p>Subtotal: ${{ item.quantity * item.card.price }}</p>
