@@ -16,6 +16,7 @@ import { CardCreateComponent } from './cards/card-create/card-create.component';
 import { CardEditComponent } from './cards/card-edit/card-edit.component';
 
 import { GameRulesComponent } from './cards/game-rules/game-rules.component';
+import { CartComponent } from './cart/cart.component';
 
 const routes: Routes = [
   { path: 'home', component: HomeComponent },
@@ -35,6 +36,7 @@ const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
 
   { path: 'game-rules', component: GameRulesComponent },
+  { path: 'cart', component: CartComponent }
 ];
 
 @NgModule({

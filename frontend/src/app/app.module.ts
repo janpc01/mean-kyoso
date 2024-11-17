@@ -22,6 +22,8 @@ import { CardCreateComponent } from './cards/card-create/card-create.component';
 import { CardEditComponent } from './cards/card-edit/card-edit.component';
 import { GameRulesComponent } from './cards/game-rules/game-rules.component';
 import { ImageCropperComponent } from 'ngx-image-cropper';
+import { CartService } from './_services/cart.service';
+import { CartComponent } from './cart/cart.component';
 
 @NgModule({
   declarations: [
@@ -36,7 +38,8 @@ import { ImageCropperComponent } from 'ngx-image-cropper';
     CardListComponent,
     CardCreateComponent,
     CardEditComponent,
-    GameRulesComponent
+    GameRulesComponent,
+    CartComponent
   ],
   imports: [
     BrowserModule,
@@ -47,7 +50,10 @@ import { ImageCropperComponent } from 'ngx-image-cropper';
     ImageCropperComponent,
     RouterModule
   ],
-  providers: [httpInterceptorProviders],
+  providers: [
+    httpInterceptorProviders,
+    CartService
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

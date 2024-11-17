@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CardService } from '../../_services/card.service';
 import { AuthService } from '../../_services/auth.service';
 import { StorageService } from '../../_services/storage.service';
+import { CartService } from '../../_services/cart.service';
 
 @Component({
   selector: 'app-card-list',
@@ -16,7 +17,8 @@ export class CardListComponent implements OnInit {
   constructor(
     private cardService: CardService, 
     private authService: AuthService,
-    private storageService: StorageService
+    private storageService: StorageService,
+    private cartService: CartService
   ) {}
 
   ngOnInit(): void {
@@ -63,20 +65,8 @@ export class CardListComponent implements OnInit {
     });
   }
 
-  incrementPrint(cardId: string): void {
-    const token = this.authService.getToken(); // Retrieve token
-    if (!token) {
-      console.error('No token found. User not authenticated.');
-      return;
-    }
-
-    this.cardService.incrementPrintCount(cardId, token).subscribe({
-      next: (updatedCard) => {
-        const index = this.cards.findIndex((card) => card._id === cardId);
-        if (index !== -1) this.cards[index] = updatedCard.card;
-      },
-      error: (err) => console.error('Error incrementing print count:', err),
-    });
+  addToCart(card: any): void {
+    this.cartService.addToCart(card);
   }
 
   openDeleteModal(card: any): void {
