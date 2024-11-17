@@ -93,22 +93,34 @@
           <div class="form-group">
             <label for="billingFullName">Full Name</label>
             <input id="billingFullName" type="text" formControlName="fullName">
+            <div class="error-message" *ngIf="!checkoutForm.get('sameAsShipping')?.value && checkoutForm.get('billing.fullName')?.touched && checkoutForm.get('billing.fullName')?.errors?.['required']">
+              Full name is required
+            </div>
           </div>
   
           <div class="form-group">
             <label for="billingAddressLine1">Street Address</label>
             <input id="billingAddressLine1" type="text" formControlName="addressLine1">
+            <div class="error-message" *ngIf="!checkoutForm.get('sameAsShipping')?.value && checkoutForm.get('billing.addressLine1')?.touched && checkoutForm.get('billing.addressLine1')?.errors?.['required']">
+              Street address is required
+            </div>
           </div>
   
           <div class="form-row">
             <div class="form-group">
               <label for="billingCity">City</label>
               <input id="billingCity" type="text" formControlName="city">
+              <div class="error-message" *ngIf="!checkoutForm.get('sameAsShipping')?.value && checkoutForm.get('billing.city')?.touched && checkoutForm.get('billing.city')?.errors?.['required']">
+                City is required
+              </div>
             </div>
   
             <div class="form-group">
               <label for="billingProvince">Province</label>
               <input id="billingProvince" type="text" formControlName="province">
+              <div class="error-message" *ngIf="!checkoutForm.get('sameAsShipping')?.value && checkoutForm.get('billing.province')?.touched && checkoutForm.get('billing.province')?.errors?.['required']">
+                Province is required
+              </div>
             </div>
           </div>
   
@@ -116,11 +128,17 @@
             <div class="form-group">
               <label for="billingPostalCode">Postal Code</label>
               <input id="billingPostalCode" type="text" formControlName="postalCode">
+              <div class="error-message" *ngIf="!checkoutForm.get('sameAsShipping')?.value && checkoutForm.get('billing.postalCode')?.touched && checkoutForm.get('billing.postalCode')?.errors?.['required']">
+                Postal code is required
+              </div>
             </div>
   
             <div class="form-group">
               <label for="billingCountry">Country</label>
               <input id="billingCountry" type="text" formControlName="country">
+              <div class="error-message" *ngIf="!checkoutForm.get('sameAsShipping')?.value && checkoutForm.get('billing.country')?.touched && checkoutForm.get('billing.country')?.errors?.['required']">
+                Country is required
+              </div>
             </div>
           </div>
         </div>
@@ -174,7 +192,9 @@
         </div>
       </div>
   
-      <button type="submit" class="submit-button" [disabled]="isSubmitting">
+      <button type="submit" 
+              class="submit-button" 
+              [disabled]="isSubmitting || !checkoutForm.valid">
         {{ isSubmitting ? 'Processing...' : 'Complete Purchase' }}
       </button>
     </form>

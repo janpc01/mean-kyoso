@@ -50,12 +50,13 @@ export class OrderService {
     });
   }
 
-  createOrder(items: OrderItem[], shippingAddress: ShippingAddress, totalAmount: number): Observable<Order> {
+  createOrder(orderItems: any[], shippingAddress: any, totalAmount: number, paymentDetails: any): Observable<Order> {
     const headers = this.getHeaders();
     return this.http.post<Order>(this.baseUrl, {
-      items,
+      items: orderItems,
       shippingAddress,
-      totalAmount
+      totalAmount,
+      paymentDetails
     }, { headers });
   }
 

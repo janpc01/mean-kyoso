@@ -1,0 +1,29 @@
+<div class="confirmation-container">
+    <h2>Order Confirmation</h2>
+    <div class="confirmation-message">
+      <i class="success-icon">✓</i>
+      <p>Thank you for your order!</p>
+      <p>Order ID: {{ orderId }}</p>
+    </div>
+  
+    <div class="order-details" *ngIf="orderDetails">
+      <h3>Order Details</h3>
+      <div class="shipping-info">
+        <h4>Shipping Address</h4>
+        <p>{{ orderDetails.shippingAddress.fullName }}</p>
+        <p>{{ orderDetails.shippingAddress.addressLine1 }}</p>
+        <p>{{ orderDetails.shippingAddress.city }}, {{ orderDetails.shippingAddress.state }} {{ orderDetails.shippingAddress.postalCode }}</p>
+        <p>{{ orderDetails.shippingAddress.country }}</p>
+      </div>
+  
+      <div class="order-summary">
+        <h4>Order Summary</h4>
+        <p>Total Amount: ${{ orderDetails.totalAmount.toFixed(2) }}</p>
+        <p>Order Status: {{ orderDetails.orderStatus }}</p>
+      </div>
+    </div>
+  
+    <div class="actions">
+      <a routerLink="/home" class="button">Return to Home</a>
+    </div>
+  </div>

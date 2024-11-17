@@ -1,18 +1,21 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ValidatorFn, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CartService } from '../_services/cart.service';
 import { OrderService } from '../_services/order.service';
+import { Subject } from 'rxjs';
+import { take, takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-checkout',
   templateUrl: './checkout.component.html',
   styleUrls: ['./checkout.component.css']
 })
-export class CheckoutComponent implements OnInit {
+export class CheckoutComponent implements OnInit, OnDestroy {
   checkoutForm!: FormGroup;
   sameAsShipping: boolean = true;
   isSubmitting: boolean = false;
+  private destroy$ = new Subject<void>();
 
   constructor(
     private fb: FormBuilder,
@@ -24,6 +27,11 @@ export class CheckoutComponent implements OnInit {
   }
 
   ngOnInit() {}
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
   private initForm() {
     this.checkoutForm = this.fb.group({
@@ -69,42 +77,69 @@ export class CheckoutComponent implements OnInit {
   onSubmit() {
     if (this.checkoutForm.valid && !this.isSubmitting) {
       this.isSubmitting = true;
-      this.cartService.getCart().subscribe(cartItems => {
-        const shippingInfo = this.checkoutForm.get('shipping')?.value;
-        
-        const orderItems = cartItems.map(item => ({
-          cardId: item.cardId,
-          quantity: item.quantity
-        }));
+      
+      this.cartService.getCart()
+        .pipe(
+          take(1),
+          takeUntil(this.destroy$)
+        )
+        .subscribe({
+          next: (cartItems) => {
+            const shippingInfo = this.checkoutForm.get('shipping')?.value;
+            
+            const orderItems = cartItems.map(item => ({
+              cardId: item.cardId,
+              quantity: item.quantity
+            }));
 
-        const shippingAddress = {
-          fullName: shippingInfo.fullName,
-          addressLine1: shippingInfo.addressLine1,
-          addressLine2: shippingInfo.addressLine2,
-          city: shippingInfo.city,
-          state: shippingInfo.province,
-          postalCode: shippingInfo.postalCode,
-          country: shippingInfo.country,
-          phone: shippingInfo.phone
-        };
+            const shippingAddress = {
+              fullName: shippingInfo.fullName,
+              addressLine1: shippingInfo.addressLine1,
+              addressLine2: shippingInfo.addressLine2,
+              city: shippingInfo.city,
+              state: shippingInfo.province,
+              postalCode: shippingInfo.postalCode,
+              country: shippingInfo.country,
+              phone: shippingInfo.phone
+            };
 
-        const totalAmount = this.cartService.getTotal();
+            const totalAmount = this.cartService.getTotal();
 
-        this.orderService.createOrder(orderItems, shippingAddress, totalAmount)
-          .subscribe({
-            next: (order) => {
-              this.cartService.clearCart();
-              this.router.navigate(['/order-confirmation'], { 
-                queryParams: { orderId: order._id }
-              });
-            },
-            error: (error) => {
-              console.error('Error creating order:', error);
-              alert('There was an error processing your payment. Please try again.');
-              this.isSubmitting = false;
-            }
-          });
-      });
+            const paymentInfo = this.checkoutForm.get('payment')?.value;
+            const paymentDetails = {
+              cardNumber: paymentInfo.cardNumber,
+              cardHolder: paymentInfo.cardHolder,
+              expiryDate: paymentInfo.expiryDate,
+              cvv: paymentInfo.cvv
+            };
+
+            this.orderService.createOrder(
+              orderItems,
+              shippingAddress,
+              totalAmount,
+              paymentDetails
+            ).subscribe({
+              next: (order) => {
+                this.cartService.clearCart();
+                this.router.navigate(['/order-confirmation'], { 
+                  queryParams: { orderId: order._id },
+                  skipLocationChange: false,
+                  replaceUrl: true
+                });
+              },
+              error: (error) => {
+                console.error('Error creating order:', error);
+                alert('There was an error processing your payment. Please try again.');
+                this.isSubmitting = false;
+              }
+            });
+          },
+          error: (error) => {
+            console.error('Error creating order:', error);
+            alert('There was an error processing your payment. Please try again.');
+            this.isSubmitting = false;
+          }
+        });
     }
   }
 

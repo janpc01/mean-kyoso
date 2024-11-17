@@ -27,6 +27,7 @@ import { CartService } from './_services/cart.service';
 import { CartComponent } from './cart/cart.component';
 import { CheckoutComponent } from './checkout/checkout.component';
 import { OrderService } from './_services/order.service';
+import { OrderConfirmationComponent } from './order-confirmation/order-confirmation.component';
 
 @NgModule({
   declarations: [
@@ -43,7 +44,8 @@ import { OrderService } from './_services/order.service';
     CardEditComponent,
     GameRulesComponent,
     CartComponent,
-    CheckoutComponent
+    CheckoutComponent,
+    OrderConfirmationComponent
   ],
   imports: [
     BrowserModule,

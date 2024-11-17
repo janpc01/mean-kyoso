@@ -112,3 +112,20 @@
     width: 80px;
     text-align: center;
   }
+  
+  .submit-button:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+  }
+  
+  .order-total {
+    margin: 20px 0;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+  }
+  
+  .order-total h4 {
+    margin: 0;
+    color: #28a745;
+  }
