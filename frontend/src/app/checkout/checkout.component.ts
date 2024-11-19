@@ -85,25 +85,30 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // Store shipping info before payment
+    localStorage.setItem('shippingInfo', JSON.stringify(this.checkoutForm.get('shipping')?.value));
+    
     this.isProcessing = true;
     const email = this.checkoutForm.get('shipping.email')?.value;
 
     try {
-      const { error, paymentIntent } = await this.stripe.confirmPayment({
+      const { error } = await this.stripe.confirmPayment({
         elements: this.elements,
         confirmParams: {
           receipt_email: email,
           return_url: `${window.location.origin}/order-confirmation`,
-        },
-        redirect: 'if_required'
+          payment_method_data: {
+            billing_details: {
+              email: email
+            }
+          }
+        }
       });
 
       if (error) {
         console.error('Payment error:', error);
         alert('Payment failed: ' + error.message);
         this.isProcessing = false;
-      } else if (paymentIntent.status === 'succeeded') {
-        await this.createOrder(paymentIntent.id);
       }
     } catch (e) {
       console.error('Error:', e);

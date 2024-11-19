@@ -18,10 +18,13 @@ export interface ShippingAddress {
 export interface OrderItem {
   cardId: string;
   quantity: number;
-  card?: {
+  card: {
     name: string;
     image: string;
     price: number;
+    beltRank: string;
+    achievement: string;
+    clubName: string;
   };
 }
 

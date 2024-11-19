@@ -148,4 +148,8 @@ export class CartService {
   getTotal(): number {
     return this.cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
   }
+
+  getCartItems(): any[] {
+    return this.cartItems;
+  }
 }

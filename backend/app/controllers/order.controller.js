@@ -35,7 +35,8 @@ exports.createOrder = async (req, res) => {
                 path: 'items',
                 populate: {
                     path: 'card',
-                    model: 'Card'
+                    model: 'Card',
+                    select: 'name image price beltRank achievement clubName'
                 }
             });
 
@@ -74,7 +75,8 @@ exports.getOrderById = async (req, res) => {
                 path: 'items',
                 populate: {
                     path: 'card',
-                    model: 'Card'
+                    model: 'Card',
+                    select: 'name image price beltRank achievement clubName'
                 }
             });
 
