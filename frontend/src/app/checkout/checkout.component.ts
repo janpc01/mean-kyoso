@@ -1,10 +1,13 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ValidatorFn, AbstractControl, ValidationErrors } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CartService } from '../_services/cart.service';
 import { OrderService } from '../_services/order.service';
+import { PaymentService } from '../_services/payment.service';
 import { Subject } from 'rxjs';
 import { take, takeUntil } from 'rxjs/operators';
+import { Stripe, StripeElements } from '@stripe/stripe-js';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-checkout',
@@ -13,20 +16,27 @@ import { take, takeUntil } from 'rxjs/operators';
 })
 export class CheckoutComponent implements OnInit, OnDestroy {
   checkoutForm!: FormGroup;
-  sameAsShipping: boolean = true;
   isSubmitting: boolean = false;
   private destroy$ = new Subject<void>();
+  private stripe: Stripe | null = null;
+  private elements: StripeElements | null = null;
+  paymentElementVisible = false;
+  isProcessing = false;
 
   constructor(
     private fb: FormBuilder,
     private cartService: CartService,
     private orderService: OrderService,
-    private router: Router
+    private router: Router,
+    private paymentService: PaymentService
   ) {
     this.initForm();
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    // Initialize Stripe when component loads
+    this.initializePayment();
+  }
 
   ngOnDestroy() {
     this.destroy$.next();
@@ -48,115 +58,120 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       }),
       sameAsShipping: [true],
       billing: this.fb.group({
-        fullName: ['', this.conditionalValidator(() => !this.checkoutForm?.get('sameAsShipping')?.value, Validators.required)],
-        addressLine1: ['', this.conditionalValidator(() => !this.checkoutForm?.get('sameAsShipping')?.value, Validators.required)],
+        fullName: [''],
+        addressLine1: [''],
         addressLine2: [''],
-        city: ['', this.conditionalValidator(() => !this.checkoutForm?.get('sameAsShipping')?.value, Validators.required)],
-        province: ['', this.conditionalValidator(() => !this.checkoutForm?.get('sameAsShipping')?.value, Validators.required)],
-        postalCode: ['', this.conditionalValidator(() => !this.checkoutForm?.get('sameAsShipping')?.value, Validators.required)],
-        country: ['', this.conditionalValidator(() => !this.checkoutForm?.get('sameAsShipping')?.value, Validators.required)]
-      }),
-      payment: this.fb.group({
-        cardNumber: ['', [
-          Validators.required,
-          Validators.pattern(/^[0-9]{16}$/)
-        ]],
-        cardHolder: ['', Validators.required],
-        expiryDate: ['', [
-          Validators.required,
-          Validators.pattern(/^(0[1-9]|1[0-2])\/([0-9]{2})$/)
-        ]],
-        cvv: ['', [
-          Validators.required,
-          Validators.pattern(/^[0-9]{3,4}$/)
-        ]]
+        city: [''],
+        province: [''],
+        postalCode: [''],
+        country: ['']
       })
     });
   }
 
-  onSubmit() {
-    if (this.checkoutForm.valid && !this.isSubmitting) {
-      this.isSubmitting = true;
-      
-      this.cartService.getCart()
-        .pipe(
-          take(1),
-          takeUntil(this.destroy$)
-        )
-        .subscribe({
-          next: (cartItems) => {
-            const shippingInfo = this.checkoutForm.get('shipping')?.value;
-            
-            const orderItems = cartItems.map(item => ({
-              cardId: item.cardId,
-              quantity: item.quantity
-            }));
+  async initializePayment() {
+    const total = this.cartService.getTotal();
+    this.stripe = await this.paymentService.getStripe();
+    
+    this.paymentService.createPaymentIntent(total).subscribe({
+      next: async (response) => {
+        if (this.stripe) {
+          this.elements = this.stripe.elements({
+            clientSecret: response.clientSecret,
+            appearance: {
+              theme: 'stripe'
+            }
+          });
 
-            const shippingAddress = {
-              fullName: shippingInfo.fullName,
-              addressLine1: shippingInfo.addressLine1,
-              addressLine2: shippingInfo.addressLine2,
-              city: shippingInfo.city,
-              state: shippingInfo.province,
-              postalCode: shippingInfo.postalCode,
-              country: shippingInfo.country,
-              phone: shippingInfo.phone
-            };
-
-            const totalAmount = this.cartService.getTotal();
-
-            const paymentInfo = this.checkoutForm.get('payment')?.value;
-            const paymentDetails = {
-              cardNumber: paymentInfo.cardNumber,
-              cardHolder: paymentInfo.cardHolder,
-              expiryDate: paymentInfo.expiryDate,
-              cvv: paymentInfo.cvv
-            };
-
-            this.orderService.createOrder(
-              orderItems,
-              shippingAddress,
-              totalAmount,
-              paymentDetails
-            ).subscribe({
-              next: (order) => {
-                this.cartService.clearCart();
-                this.router.navigate(['/order-confirmation'], { 
-                  queryParams: { orderId: order._id },
-                  skipLocationChange: false,
-                  replaceUrl: true
-                });
-              },
-              error: (error) => {
-                console.error('Error creating order:', error);
-                alert('There was an error processing your payment. Please try again.');
-                this.isSubmitting = false;
-              }
-            });
-          },
-          error: (error) => {
-            console.error('Error creating order:', error);
-            alert('There was an error processing your payment. Please try again.');
-            this.isSubmitting = false;
-          }
-        });
-    }
-  }
-
-  onSameAsShippingChange(): void {
-    const sameAsShipping = this.checkoutForm.get('sameAsShipping')?.value;
-    if (sameAsShipping) {
-      const shippingValue = this.checkoutForm.get('shipping')?.value;
-      this.checkoutForm.get('billing')?.patchValue(shippingValue);
-    }
-  }
-
-  private conditionalValidator(condition: () => boolean, validator: ValidatorFn): ValidatorFn {
-    return (control: AbstractControl): ValidationErrors | null => {
-      if (condition()) {
-        return validator(control);
+          const paymentElement = this.elements.create('payment');
+          paymentElement.mount('#payment-element');
+          this.paymentElementVisible = true;
+        }
+      },
+      error: (error) => {
+        console.error('Payment intent error:', error);
       }
-      return null;
-    };
+    });
+  }
+
+  async handleSubmit(event: Event) {
+    event.preventDefault();
+    
+    if (!this.stripe || !this.elements || !this.checkoutForm.valid) {
+      return;
+    }
+
+    this.isProcessing = true;
+
+    try {
+      const { error, paymentIntent } = await this.stripe.confirmPayment({
+        elements: this.elements,
+        confirmParams: {
+          return_url: `${window.location.origin}/order-confirmation`,
+        },
+        redirect: 'if_required'
+      });
+
+      if (error) {
+        console.error('Payment error:', error);
+        alert('Payment failed: ' + error.message);
+        this.isProcessing = false;
+      } else if (paymentIntent.status === 'succeeded') {
+        await this.createOrder(paymentIntent.id);
+      }
+    } catch (e) {
+      console.error('Error:', e);
+      this.isProcessing = false;
+    }
+  }
+
+  private async createOrder(paymentIntentId: string) {
+    const shippingInfo = this.checkoutForm.get('shipping')?.value;
+    
+    this.cartService.getCart()
+      .pipe(
+        take(1),
+        takeUntil(this.destroy$)
+      )
+      .subscribe({
+        next: (cartItems) => {
+          const orderItems = cartItems.map(item => ({
+            cardId: item.cardId,
+            quantity: item.quantity
+          }));
+
+          const shippingAddress = {
+            fullName: shippingInfo.fullName,
+            addressLine1: shippingInfo.addressLine1,
+            addressLine2: shippingInfo.addressLine2,
+            city: shippingInfo.city,
+            state: shippingInfo.province,
+            postalCode: shippingInfo.postalCode,
+            country: shippingInfo.country,
+            phone: shippingInfo.phone
+          };
+
+          const totalAmount = this.cartService.getTotal();
+
+          this.orderService.createOrder(
+            orderItems,
+            shippingAddress,
+            totalAmount,
+            { paymentIntentId }
+          ).subscribe({
+            next: (order) => {
+              this.cartService.clearCart();
+              this.router.navigate(['/order-confirmation'], { 
+                queryParams: { orderId: order._id }
+              });
+            },
+            error: (error) => {
+              console.error('Error creating order:', error);
+              alert('There was an error processing your order. Please try again.');
+              this.isProcessing = false;
+            }
+          });
+        }
+      });
   }
 }

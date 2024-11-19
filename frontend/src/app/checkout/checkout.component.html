@@ -1,7 +1,7 @@
 <div class="checkout-container">
     <h2>Checkout</h2>
     
-    <form [formGroup]="checkoutForm" (ngSubmit)="onSubmit()">
+    <form [formGroup]="checkoutForm" (ngSubmit)="handleSubmit($event)">
       <!-- Shipping Information -->
       <div class="form-section" formGroupName="shipping">
         <h3>Shipping Information</h3>
@@ -78,124 +78,16 @@
         </div>
       </div>
   
-      <!-- Billing Information -->
+      <!-- Stripe Payment Element -->
       <div class="form-section">
-        <div class="form-group">
-          <label>
-            <input type="checkbox" formControlName="sameAsShipping" (change)="onSameAsShippingChange()">
-            Billing address same as shipping
-          </label>
-        </div>
-  
-        <div class="form-section" formGroupName="billing" [hidden]="checkoutForm.get('sameAsShipping')?.value">
-          <h3>Billing Information</h3>
-          
-          <div class="form-group">
-            <label for="billingFullName">Full Name</label>
-            <input id="billingFullName" type="text" formControlName="fullName">
-            <div class="error-message" *ngIf="!checkoutForm.get('sameAsShipping')?.value && checkoutForm.get('billing.fullName')?.touched && checkoutForm.get('billing.fullName')?.errors?.['required']">
-              Full name is required
-            </div>
-          </div>
-  
-          <div class="form-group">
-            <label for="billingAddressLine1">Street Address</label>
-            <input id="billingAddressLine1" type="text" formControlName="addressLine1">
-            <div class="error-message" *ngIf="!checkoutForm.get('sameAsShipping')?.value && checkoutForm.get('billing.addressLine1')?.touched && checkoutForm.get('billing.addressLine1')?.errors?.['required']">
-              Street address is required
-            </div>
-          </div>
-  
-          <div class="form-row">
-            <div class="form-group">
-              <label for="billingCity">City</label>
-              <input id="billingCity" type="text" formControlName="city">
-              <div class="error-message" *ngIf="!checkoutForm.get('sameAsShipping')?.value && checkoutForm.get('billing.city')?.touched && checkoutForm.get('billing.city')?.errors?.['required']">
-                City is required
-              </div>
-            </div>
-  
-            <div class="form-group">
-              <label for="billingProvince">Province</label>
-              <input id="billingProvince" type="text" formControlName="province">
-              <div class="error-message" *ngIf="!checkoutForm.get('sameAsShipping')?.value && checkoutForm.get('billing.province')?.touched && checkoutForm.get('billing.province')?.errors?.['required']">
-                Province is required
-              </div>
-            </div>
-          </div>
-  
-          <div class="form-row">
-            <div class="form-group">
-              <label for="billingPostalCode">Postal Code</label>
-              <input id="billingPostalCode" type="text" formControlName="postalCode">
-              <div class="error-message" *ngIf="!checkoutForm.get('sameAsShipping')?.value && checkoutForm.get('billing.postalCode')?.touched && checkoutForm.get('billing.postalCode')?.errors?.['required']">
-                Postal code is required
-              </div>
-            </div>
-  
-            <div class="form-group">
-              <label for="billingCountry">Country</label>
-              <input id="billingCountry" type="text" formControlName="country">
-              <div class="error-message" *ngIf="!checkoutForm.get('sameAsShipping')?.value && checkoutForm.get('billing.country')?.touched && checkoutForm.get('billing.country')?.errors?.['required']">
-                Country is required
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-  
-      <!-- Payment Information -->
-      <div class="form-section" formGroupName="payment">
         <h3>Payment Information</h3>
-        
-        <div class="form-group">
-          <label for="cardHolder">Card Holder Name</label>
-          <input id="cardHolder" type="text" formControlName="cardHolder">
-          <div class="error-message" *ngIf="checkoutForm.get('payment.cardHolder')?.touched && checkoutForm.get('payment.cardHolder')?.errors?.['required']">
-            Card holder name is required
-          </div>
-        </div>
-  
-        <div class="form-group">
-          <label for="cardNumber">Card Number</label>
-          <input id="cardNumber" type="text" formControlName="cardNumber" maxlength="16">
-          <div class="error-message" *ngIf="checkoutForm.get('payment.cardNumber')?.touched && checkoutForm.get('payment.cardNumber')?.errors?.['required']">
-            Card number is required
-          </div>
-          <div class="error-message" *ngIf="checkoutForm.get('payment.cardNumber')?.touched && checkoutForm.get('payment.cardNumber')?.errors?.['pattern']">
-            Please enter a valid 16-digit card number
-          </div>
-        </div>
-  
-        <div class="form-row">
-          <div class="form-group">
-            <label for="expiryDate">Expiry Date</label>
-            <input id="expiryDate" type="text" formControlName="expiryDate" placeholder="MM/YY" maxlength="5">
-            <div class="error-message" *ngIf="checkoutForm.get('payment.expiryDate')?.touched && checkoutForm.get('payment.expiryDate')?.errors?.['required']">
-              Expiry date is required
-            </div>
-            <div class="error-message" *ngIf="checkoutForm.get('payment.expiryDate')?.touched && checkoutForm.get('payment.expiryDate')?.errors?.['pattern']">
-              Please enter a valid date (MM/YY)
-            </div>
-          </div>
-  
-          <div class="form-group">
-            <label for="cvv">CVV</label>
-            <input id="cvv" type="text" formControlName="cvv" maxlength="4">
-            <div class="error-message" *ngIf="checkoutForm.get('payment.cvv')?.touched && checkoutForm.get('payment.cvv')?.errors?.['required']">
-              CVV is required
-            </div>
-            <div class="error-message" *ngIf="checkoutForm.get('payment.cvv')?.touched && checkoutForm.get('payment.cvv')?.errors?.['pattern']">
-              Please enter a valid CVV
-            </div>
-          </div>
-        </div>
+        <div id="payment-element"></div>
       </div>
   
       <button type="submit" 
               class="submit-button" 
-              [disabled]="isSubmitting || !checkoutForm.valid">
-        {{ isSubmitting ? 'Processing...' : 'Complete Purchase' }}
+              [disabled]="isProcessing || !checkoutForm.valid">
+        {{ isProcessing ? 'Processing...' : 'Pay and Complete Order' }}
       </button>
     </form>
   </div>

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { StorageService } from './storage.service';
+import { environment } from '../../environments/environment';
 
 export interface ShippingAddress {
   fullName: string;
@@ -40,7 +41,7 @@ export interface Order {
   providedIn: 'root'
 })
 export class OrderService {
-  private baseUrl = 'http://localhost:8080/api/orders';
+  private baseUrl = `${environment.apiUrl}/orders`;
 
   constructor(
     private http: HttpClient,
