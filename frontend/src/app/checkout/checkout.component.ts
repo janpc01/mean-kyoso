@@ -8,6 +8,8 @@ import { Subject } from 'rxjs';
 import { take, takeUntil } from 'rxjs/operators';
 import { Stripe, StripeElements } from '@stripe/stripe-js';
 import { environment } from '../../environments/environment';
+import { firstValueFrom } from 'rxjs';
+import { AuthService } from '../_services/auth.service';
 
 @Component({
   selector: 'app-checkout',
@@ -17,25 +19,26 @@ import { environment } from '../../environments/environment';
 export class CheckoutComponent implements OnInit, OnDestroy {
   checkoutForm!: FormGroup;
   isSubmitting: boolean = false;
+  showPaymentElement: boolean = false;
   private destroy$ = new Subject<void>();
   private stripe: Stripe | null = null;
   private elements: StripeElements | null = null;
-  paymentElementVisible = false;
   isProcessing = false;
+  showCheckoutOptions: boolean = false;
 
   constructor(
     private fb: FormBuilder,
     private cartService: CartService,
     private orderService: OrderService,
-    private router: Router,
-    private paymentService: PaymentService
+    public router: Router,
+    private paymentService: PaymentService,
+    private authService: AuthService
   ) {
     this.initForm();
-    this.initFormListeners();
   }
 
-  ngOnInit() {
-    this.initializeStripe();
+  async ngOnInit() {
+    // No need for automatic payment initialization
   }
 
   ngOnDestroy() {
@@ -60,21 +63,46 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   }
 
   private async initializeStripe() {
-    this.stripe = await this.paymentService.getStripe();
+    try {
+      const stripe = await this.paymentService.getStripe();
+      if (!stripe) {
+        throw new Error('Stripe failed to initialize');
+      }
+      this.stripe = stripe;
+      return stripe;
+    } catch (error) {
+      console.error('Stripe initialization error:', error);
+      throw error;
+    }
   }
 
-  private async initializePaymentElement(clientSecret: string) {
-    if (this.stripe) {
+  private async initializePaymentElement() {
+    if (!this.stripe) {
+      throw new Error('Stripe not initialized');
+    }
+
+    try {
+      const paymentElement = document.getElementById('payment-element');
+      if (!paymentElement) {
+        throw new Error('Payment element container not found');
+      }
+
+      const total = this.cartService.getTotal();
+      const email = this.checkoutForm.get('shipping.email')?.value;
+      const response = await firstValueFrom(this.paymentService.createPaymentIntent(total, email));
+      const { clientSecret } = response;
+      
       this.elements = this.stripe.elements({
         clientSecret,
-        appearance: {
-          theme: 'stripe'
-        }
+        appearance: { theme: 'stripe' }
       });
 
-      const paymentElement = this.elements.create('payment');
-      paymentElement.mount('#payment-element');
-      this.paymentElementVisible = true;
+      const element = this.elements.create('payment');
+      element.mount('#payment-element');
+    } catch (error) {
+      console.error('Error initializing payment:', error);
+      this.showPaymentElement = false; // Hide the payment element on error
+      throw error;
     }
   }
 
@@ -166,19 +194,55 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       });
   }
 
-  private initFormListeners() {
-    this.checkoutForm.get('shipping.email')?.valueChanges.subscribe(async (email) => {
-      if (email && this.checkoutForm.get('shipping.email')?.valid) {
-        const total = this.cartService.getTotal();
-        try {
-          const response = await this.paymentService.createPaymentIntent(total, email).toPromise();
-          if (response && this.stripe) {
-            await this.initializePaymentElement(response.clientSecret);
-          }
-        } catch (error) {
-          console.error('Error initializing payment:', error);
+  async proceedToPayment() {
+    if (this.checkoutForm.get('shipping')?.valid) {
+      try {
+        const stripe = await this.initializeStripe();
+        if (!stripe) {
+          throw new Error('Failed to load Stripe');
         }
+        this.stripe = stripe;
+        
+        const email = this.checkoutForm.get('shipping.email')?.value;
+        if (!email) {
+          throw new Error('Email is required');
+        }
+        
+        // First show the payment element container
+        this.showPaymentElement = true;
+        
+        // Wait for the DOM to update
+        setTimeout(async () => {
+          await this.initializePaymentElement();
+        }, 0);
+        
+      } catch (error) {
+        console.error('Payment initialization error:', error);
+        alert('Error initializing payment. Please try again.');
       }
-    });
+    } else {
+      alert('Please fill out all required shipping information.');
+    }
+  }
+
+  async handleGuestCheckout() {
+    try {
+      const stripe = await this.initializeStripe();
+      if (!stripe) {
+        throw new Error('Failed to load Stripe');
+      }
+      this.stripe = stripe;
+      
+      const email = this.checkoutForm.get('shipping.email')?.value;
+      if (!email) {
+        throw new Error('Email is required');
+      }
+      
+      await this.initializePaymentElement();
+      this.showPaymentElement = true;
+    } catch (error) {
+      console.error('Payment initialization error:', error);
+      alert('Error initializing payment. Please try again.');
+    }
   }
 }

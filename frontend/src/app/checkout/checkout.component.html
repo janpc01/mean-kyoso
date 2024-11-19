@@ -78,16 +78,44 @@
         </div>
       </div>
   
-      <!-- Stripe Payment Element -->
-      <div class="form-section">
+      <!-- After shipping form section -->
+      <button type="button" 
+              class="submit-button"
+              *ngIf="!showPaymentElement"
+              (click)="proceedToPayment()"
+              [disabled]="!checkoutForm.get('shipping')?.valid">
+        Proceed to Payment
+      </button>
+  
+      <!-- Payment section -->
+      <div class="form-section" *ngIf="showPaymentElement">
         <h3>Payment Information</h3>
         <div id="payment-element"></div>
+        
+        <button type="submit" 
+                class="submit-button" 
+                [disabled]="isProcessing || !checkoutForm.valid">
+          {{ isProcessing ? 'Processing...' : 'Pay and Complete Order' }}
+        </button>
       </div>
   
-      <button type="submit" 
-              class="submit-button" 
-              [disabled]="isProcessing || !checkoutForm.valid">
-        {{ isProcessing ? 'Processing...' : 'Pay and Complete Order' }}
-      </button>
+      <!-- Add this after the shipping form section -->
+      <div class="checkout-options-modal" *ngIf="showCheckoutOptions">
+        <div class="modal-content">
+          <h3>Choose Checkout Option</h3>
+          <div class="options-container">
+            <button class="option-button" (click)="router.navigate(['/login'])">
+              Login to Continue
+            </button>
+            <button class="option-button" (click)="router.navigate(['/register'])">
+              Create Account
+            </button>
+            <button class="option-button" (click)="handleGuestCheckout()">
+              Continue as Guest
+            </button>
+          </div>
+          <button class="close-button" (click)="showCheckoutOptions = false">×</button>
+        </div>
+      </div>
     </form>
   </div>

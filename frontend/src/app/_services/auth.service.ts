@@ -53,4 +53,21 @@ export class AuthService {
   getToken(): string | null {
     return localStorage.getItem('token');
   }
+
+  // Add this method to AuthService
+  generateGuestToken(): Observable<any> {
+    const guestId = 'guest_' + Math.random().toString(36).substring(2);
+    
+    return this.http.post(AUTH_API + 'guest-token', { 
+      guestId,
+      email: localStorage.getItem('guestEmail') || undefined
+    }, httpOptions)
+    .pipe(
+      tap((response: any) => {
+        if (response.token) {
+          localStorage.setItem('token', response.token);
+        }
+      })
+    );
+  }
 }

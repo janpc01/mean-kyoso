@@ -90,3 +90,25 @@ exports.signout = (req, res) => {
         this.next(err);
     }
 };
+
+exports.createGuestToken = (req, res) => {
+  const { guestId, email } = req.body;
+  
+  // Create a JWT token for the guest
+  const token = jwt.sign(
+    { 
+      id: guestId,
+      isGuest: true,
+      email: email 
+    },
+    config.secret,
+    {
+      expiresIn: 86400 // 24 hours
+    }
+  );
+
+  res.status(200).send({
+    token,
+    type: "Bearer"
+  });
+};

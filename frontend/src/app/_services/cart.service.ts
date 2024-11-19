@@ -24,7 +24,17 @@ export class CartService {
 
   private getStorageKey(): string {
     const user = this.storageService.getUser();
-    return user ? `cart-${user.id}` : 'cart-guest';
+    if (user) {
+      return `cart-${user.id}`;
+    }
+    
+    // Get or create unique guest ID
+    let guestId = sessionStorage.getItem('guestId');
+    if (!guestId) {
+      guestId = 'guest-' + Math.random().toString(36).substring(2) + Date.now().toString(36);
+      sessionStorage.setItem('guestId', guestId);
+    }
+    return `cart-${guestId}`;
   }
 
   private loadCart(): void {

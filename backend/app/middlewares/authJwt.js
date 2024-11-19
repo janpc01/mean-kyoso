@@ -6,16 +6,23 @@ const Role = db.role;
 
 verifyToken = async (req, res, next) => {
     try {
-        // Retrieve the token from the x-access-token header
-        let token = req.headers['x-access-token']; 
+        let token = req.headers['x-access-token'];
 
         if (!token) {
             return res.status(403).send({ message: "No token provided!" });
         }
 
-        // Verify the token
+        // Allow guest tokens for payment intent creation
+        if (token.startsWith('guest_')) {
+            req.isGuest = true;
+            req.userId = null;
+            return next();
+        }
+
+        // Regular token verification
         const decoded = jwt.verify(token, config.secret);
-        req.userId = decoded.id; // Save userId to the request object
+        req.userId = decoded.id;
+        req.isGuest = false;
         next();
     } catch (err) {
         res.status(401).send({ message: "Unauthorized!" });
