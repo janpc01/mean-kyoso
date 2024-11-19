@@ -15,20 +15,33 @@ exports.signup = async (req, res) => {
         });
 
         const savedUser = await user.save();
+        let authorities = [];
 
         if (req.body.roles) {
             const roles = await Role.find({ name: { $in: req.body.roles } });
-
             savedUser.roles = roles.map(role => role._id);
             await savedUser.save();
-            res.send({ message: "User was registered successfully!" });
+            authorities = roles.map(role => "ROLE_" + role.name.toUpperCase());
         } else {
             const role = await Role.findOne({ name: "user" });
-
             savedUser.roles = [role._id];
             await savedUser.save();
-            res.send({ message: "User was registered successfully!" });
+            authorities = ["ROLE_USER"];
         }
+
+        const token = jwt.sign({ id: savedUser.id }, config.secret, {
+            algorithm: 'HS256',
+            allowInsecureKeySizes: true,
+            expiresIn: 86400, // 24 hours
+        });
+
+        res.status(200).send({
+            id: savedUser._id,
+            username: savedUser.username,
+            email: savedUser.email,
+            roles: authorities,
+            token: token
+        });
     } catch (err) {
         res.status(500).send({ message: err.message || "An error occurred" });
     }
