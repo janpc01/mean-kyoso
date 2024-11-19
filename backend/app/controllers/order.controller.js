@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const { Order, OrderItem } = require('../models/order.model');
 const Card = require('../models/card.model');
+const { sendAdminOrderNotification } = require('../services/email.service');
 
 exports.createOrder = async (req, res) => {
     try {
@@ -22,7 +23,7 @@ exports.createOrder = async (req, res) => {
             items: orderItems.map(item => item._id),
             shippingAddress,
             totalAmount,
-            paymentStatus: "Pending",
+            paymentStatus: "Paid",
             orderStatus: "Processing"
         });
 
@@ -37,6 +38,9 @@ exports.createOrder = async (req, res) => {
                     model: 'Card'
                 }
             });
+
+        // Send email notification
+        await sendAdminOrderNotification(populatedOrder);
 
         res.status(201).json(populatedOrder);
     } catch (err) {
