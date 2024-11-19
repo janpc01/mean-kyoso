@@ -31,11 +31,11 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     private paymentService: PaymentService
   ) {
     this.initForm();
+    this.initFormListeners();
   }
 
   ngOnInit() {
-    // Initialize Stripe when component loads
-    this.initializePayment();
+    this.initializeStripe();
   }
 
   ngOnDestroy() {
@@ -69,29 +69,23 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     });
   }
 
-  async initializePayment() {
-    const total = this.cartService.getTotal();
+  private async initializeStripe() {
     this.stripe = await this.paymentService.getStripe();
-    
-    this.paymentService.createPaymentIntent(total).subscribe({
-      next: async (response) => {
-        if (this.stripe) {
-          this.elements = this.stripe.elements({
-            clientSecret: response.clientSecret,
-            appearance: {
-              theme: 'stripe'
-            }
-          });
+  }
 
-          const paymentElement = this.elements.create('payment');
-          paymentElement.mount('#payment-element');
-          this.paymentElementVisible = true;
+  private async initializePaymentElement(clientSecret: string) {
+    if (this.stripe) {
+      this.elements = this.stripe.elements({
+        clientSecret,
+        appearance: {
+          theme: 'stripe'
         }
-      },
-      error: (error) => {
-        console.error('Payment intent error:', error);
-      }
-    });
+      });
+
+      const paymentElement = this.elements.create('payment');
+      paymentElement.mount('#payment-element');
+      this.paymentElementVisible = true;
+    }
   }
 
   async handleSubmit(event: Event) {
@@ -102,11 +96,13 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     }
 
     this.isProcessing = true;
+    const email = this.checkoutForm.get('shipping.email')?.value;
 
     try {
       const { error, paymentIntent } = await this.stripe.confirmPayment({
         elements: this.elements,
         confirmParams: {
+          receipt_email: email,
           return_url: `${window.location.origin}/order-confirmation`,
         },
         redirect: 'if_required'
@@ -173,5 +169,21 @@ export class CheckoutComponent implements OnInit, OnDestroy {
           });
         }
       });
+  }
+
+  private initFormListeners() {
+    this.checkoutForm.get('shipping.email')?.valueChanges.subscribe(async (email) => {
+      if (email && this.checkoutForm.get('shipping.email')?.valid && !this.paymentElementVisible) {
+        const total = this.cartService.getTotal();
+        try {
+          const response = await this.paymentService.createPaymentIntent(total, email).toPromise();
+          if (response && this.stripe) {
+            await this.initializePaymentElement(response.clientSecret);
+          }
+        } catch (error) {
+          console.error('Error initializing payment:', error);
+        }
+      }
+    });
   }
 }

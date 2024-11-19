@@ -25,11 +25,11 @@ export class PaymentService {
     });
   }
 
-  createPaymentIntent(amount: number): Observable<{ clientSecret: string }> {
+  createPaymentIntent(amount: number, email: string): Observable<{ clientSecret: string }> {
     const headers = this.getHeaders();
     return this.http.post<{ clientSecret: string }>(
       `${this.baseUrl}/create-payment-intent`,
-      { amount },
+      { amount, email },
       { headers }
     );
   }
