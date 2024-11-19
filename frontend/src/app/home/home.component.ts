@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CardService } from '../_services/card.service';
 import { Router } from '@angular/router';
 import { CartService } from '../_services/cart.service';
@@ -8,7 +8,7 @@ import { CartService } from '../_services/cart.service';
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
 })
-export class HomeComponent {
+export class HomeComponent implements OnInit {
   searchQuery: string = '';
   searchResults: any[] = [];
   searchTimeout: any;
@@ -18,6 +18,14 @@ export class HomeComponent {
     private cartService: CartService,
     private router: Router
   ) {}
+
+  ngOnInit(): void {
+    const redirectUrl = localStorage.getItem('redirectAfterLogin');
+    if (redirectUrl) {
+      localStorage.removeItem('redirectAfterLogin');
+      this.router.navigate([redirectUrl]);
+    }
+  }
 
   onSearch(): void {
     // Clear existing timeout

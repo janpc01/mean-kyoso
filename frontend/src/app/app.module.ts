@@ -7,6 +7,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
 
+
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { LoginComponent } from './login/login.component';
@@ -28,6 +29,8 @@ import { CartComponent } from './cart/cart.component';
 import { CheckoutComponent } from './checkout/checkout.component';
 import { OrderService } from './_services/order.service';
 import { OrderConfirmationComponent } from './order-confirmation/order-confirmation.component';
+import { SignupModalComponent } from './signup-modal/signup-modal/signup-modal.component';
+
 
 @NgModule({
   declarations: [
@@ -45,7 +48,8 @@ import { OrderConfirmationComponent } from './order-confirmation/order-confirmat
     GameRulesComponent,
     CartComponent,
     CheckoutComponent,
-    OrderConfirmationComponent
+    OrderConfirmationComponent,
+    SignupModalComponent
   ],
   imports: [
     BrowserModule,
@@ -55,7 +59,8 @@ import { OrderConfirmationComponent } from './order-confirmation/order-confirmat
     CommonModule,
     ImageCropperComponent,
     RouterModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    FormsModule
   ],
   providers: [
     httpInterceptorProviders,

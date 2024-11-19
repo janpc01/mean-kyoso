@@ -50,3 +50,10 @@
     </div>
   </div>
 </div>
+
+<!-- Add this at the bottom of your existing template -->
+<app-signup-modal
+  [show]="showSignupModal"
+  (close)="showSignupModal = false"
+  (signupSuccess)="onSignupSuccess()"
+></app-signup-modal>

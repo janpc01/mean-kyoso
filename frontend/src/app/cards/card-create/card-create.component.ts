@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { CardService } from '../../_services/card.service';
 import { AuthService } from '../../_services/auth.service';
 import { ImageCroppedEvent } from 'ngx-image-cropper';
+import { StorageService } from '../../_services/storage.service';
 
 interface Card {
   name: string;
@@ -31,10 +32,20 @@ export class CardCreateComponent {
   showCropperModal = false;
   imageFile: File | undefined = undefined;
   croppedImage: string | undefined = undefined;
+  showSignupModal = false;
+  pendingCard: Card | null = null;
+  form: any = {
+    username: null,
+    email: null,
+    password: null
+  };
+  isSignUpFailed = false;
+  errorMessage = '';
 
   constructor(
     private cardService: CardService,
     private authService: AuthService,
+    private storageService: StorageService,
     private router: Router
   ) {}
 
@@ -48,10 +59,10 @@ export class CardCreateComponent {
   }
 
   createCard(): void {
-    const token = this.authService.getToken();
-    if (!token) {
-      alert('User is not authenticated. Please log in.');
-      this.router.navigate(['/login']);
+    if (!this.authService.getToken()) {
+      // Store the card data temporarily and show signup modal
+      this.pendingCard = { ...this.card };
+      this.showSignupModal = true;
       return;
     }
 
@@ -72,7 +83,7 @@ export class CardCreateComponent {
       }
     }
 
-    this.cardService.createCard(this.card, token).subscribe({
+    this.cardService.createCard(this.card, this.authService.getToken()!).subscribe({
       next: () => {
         alert('Card created successfully!');
         this.router.navigate(['/user/cards']);
@@ -80,7 +91,7 @@ export class CardCreateComponent {
       error: (err) => {
         console.error('Error creating card:', err);
         alert('Error creating card: ' + (err.error?.message || err.message));
-      },
+      }
     });
   }
 
@@ -134,5 +145,38 @@ export class CardCreateComponent {
     this.closeCropperModal();
   }
 
-  
+  onSignupSubmit(): void {
+    const { username, email, password } = this.form;
+
+    this.authService.register(username, email, password).subscribe({
+      next: () => {
+        // After registration, automatically login
+        this.authService.login(username, password).subscribe({
+          next: loginData => {
+            this.storageService.saveUser(loginData);
+            this.showSignupModal = false;
+            // Continue with card creation
+            this.createCard();
+          },
+          error: err => {
+            this.errorMessage = err.error.message;
+            this.isSignUpFailed = true;
+          }
+        });
+      },
+      error: err => {
+        this.errorMessage = err.error.message;
+        this.isSignUpFailed = true;
+      }
+    });
+  }
+
+  onSignupSuccess(): void {
+    this.showSignupModal = false;
+    if (this.pendingCard) {
+      this.card = this.pendingCard;
+      this.createCard();
+      this.pendingCard = null;
+    }
+  }
 }
