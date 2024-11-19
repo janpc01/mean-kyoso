@@ -55,16 +55,6 @@ export class CheckoutComponent implements OnInit, OnDestroy {
         province: ['', Validators.required],
         postalCode: ['', Validators.required],
         country: ['', Validators.required]
-      }),
-      sameAsShipping: [true],
-      billing: this.fb.group({
-        fullName: [''],
-        addressLine1: [''],
-        addressLine2: [''],
-        city: [''],
-        province: [''],
-        postalCode: [''],
-        country: ['']
       })
     });
   }

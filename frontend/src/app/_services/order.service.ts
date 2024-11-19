@@ -49,10 +49,10 @@ export class OrderService {
   ) {}
 
   private getHeaders(): HttpHeaders {
-    const token = this.storageService.getUser()?.accessToken;
+    const user = this.storageService.getUser();
     return new HttpHeaders({
       'Content-Type': 'application/json',
-      'x-access-token': token || ''
+      ...(user?.token ? { 'x-access-token': user.token } : {})
     });
   }
 
