@@ -33,13 +33,14 @@ export class AppComponent {
   logout(): void {
     this.authService.logout().subscribe({
       next: () => {
+        this.storageService.clean();
         this.isLoggedIn = false;
         this.roles = [];
         this.showAdminBoard = false;
         this.showModeratorBoard = false;
         this.username = undefined;
         
-        window.location.href = '/home';
+        window.location.reload();
       },
       error: () => {
         this.storageService.clean();
@@ -49,7 +50,7 @@ export class AppComponent {
         this.showModeratorBoard = false;
         this.username = undefined;
         
-        window.location.href = '/home';
+        window.location.reload();
       }
     });
   }
