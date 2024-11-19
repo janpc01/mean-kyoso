@@ -5,15 +5,29 @@
   
   /* Navbar styling */
   .navbar {
-    padding: 10px 20px;
+    padding: 15px 20px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 80px;
   }
   
   .navbar-brand {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: white;
-    text-decoration: none;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 0;
+    margin: 0;
+    height: 70px;
+    display: flex;
+    align-items: center;
+  }
+  
+  .navbar-logo {
+    height: 60px;
+    width: auto;
+    vertical-align: middle;
   }
   
   .navbar-nav {
