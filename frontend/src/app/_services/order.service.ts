@@ -57,13 +57,15 @@ export class OrderService {
   }
 
   createOrder(orderItems: any[], shippingAddress: any, totalAmount: number, paymentDetails: any): Observable<Order> {
-    const headers = this.getHeaders();
     return this.http.post<Order>(this.baseUrl, {
       items: orderItems,
       shippingAddress,
       totalAmount,
-      paymentDetails
-    }, { headers });
+      paymentDetails,
+      isGuestOrder: true
+    }, { 
+      headers: new HttpHeaders({ 'Content-Type': 'application/json' })
+    });
   }
 
   getUserOrders(): Observable<Order[]> {

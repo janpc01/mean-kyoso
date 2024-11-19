@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { StorageService } from './storage.service';
 import { loadStripe } from '@stripe/stripe-js';
 import { environment } from '../../environments/environment';
 
@@ -12,25 +11,13 @@ export class PaymentService {
   private baseUrl = `${environment.apiUrl}/payment`;
   private stripePromise = loadStripe(environment.stripePublishableKey);
 
-  constructor(
-    private http: HttpClient,
-    private storageService: StorageService
-  ) {}
-
-  private getHeaders(): HttpHeaders {
-    const token = this.storageService.getUser()?.accessToken;
-    return new HttpHeaders({
-      'Content-Type': 'application/json',
-      'x-access-token': token || ''
-    });
-  }
+  constructor(private http: HttpClient) {}
 
   createPaymentIntent(amount: number, email: string): Observable<{ clientSecret: string }> {
-    const headers = this.getHeaders();
     return this.http.post<{ clientSecret: string }>(
       `${this.baseUrl}/create-payment-intent`,
       { amount, email },
-      { headers }
+      { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
     );
   }
 

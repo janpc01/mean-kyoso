@@ -163,7 +163,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
 
   private initFormListeners() {
     this.checkoutForm.get('shipping.email')?.valueChanges.subscribe(async (email) => {
-      if (email && this.checkoutForm.get('shipping.email')?.valid && !this.paymentElementVisible) {
+      if (email && this.checkoutForm.get('shipping.email')?.valid) {
         const total = this.cartService.getTotal();
         try {
           const response = await this.paymentService.createPaymentIntent(total, email).toPromise();
