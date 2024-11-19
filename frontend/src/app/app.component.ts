@@ -32,14 +32,24 @@ export class AppComponent {
 
   logout(): void {
     this.authService.logout().subscribe({
-      next: res => {
-        console.log(res);
-        this.storageService.clean();
-
-        window.location.reload();
+      next: () => {
+        this.isLoggedIn = false;
+        this.roles = [];
+        this.showAdminBoard = false;
+        this.showModeratorBoard = false;
+        this.username = undefined;
+        
+        window.location.href = '/home';
       },
-      error: err => {
-        console.log(err);
+      error: () => {
+        this.storageService.clean();
+        this.isLoggedIn = false;
+        this.roles = [];
+        this.showAdminBoard = false;
+        this.showModeratorBoard = false;
+        this.username = undefined;
+        
+        window.location.href = '/home';
       }
     });
   }

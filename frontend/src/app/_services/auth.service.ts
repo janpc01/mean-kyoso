@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators'; // Use tap to handle side effects like saving token
+import { StorageService } from './storage.service';
 
 const AUTH_API = 'http://localhost:8080/api/auth/';
 
@@ -13,7 +14,10 @@ const httpOptions = {
   providedIn: 'root',
 })
 export class AuthService {
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private storageService: StorageService
+  ) {}
 
   // Login API Call
   login(username: string, password: string): Observable<any> {
@@ -34,9 +38,15 @@ export class AuthService {
 
   // Logout API Call
   logout(): Observable<any> {
-    // Clear the token from localStorage on logout
+    // Clear the token first
     localStorage.removeItem('token');
-    return this.http.post(AUTH_API + 'signout', {}, httpOptions);
+    // Return the API call with error handling
+    return this.http.post(AUTH_API + 'signout', {}, httpOptions).pipe(
+      tap(() => {
+        // Clear storage immediately after successful logout
+        this.storageService.clean();
+      })
+    );
   }
 
   // Retrieve the stored token
