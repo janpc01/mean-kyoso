@@ -126,9 +126,10 @@
   
   
   h2 {
-    color: #333;
+    color: black;
     margin-bottom: 20px;
     text-align: center;
+    font-weight: bold;
   }
   
   .no-search-message, .no-results-message {
