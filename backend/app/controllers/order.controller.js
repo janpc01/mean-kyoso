@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const { Order, OrderItem } = require('../models/order.model');
 const Card = require('../models/card.model');
 const { sendAdminOrderNotification } = require('../services/email.service');
+const axios = require('axios');
 
 exports.createOrder = async (req, res) => {
     try {
@@ -42,6 +43,14 @@ exports.createOrder = async (req, res) => {
 
         // Send email notification
         await sendAdminOrderNotification(populatedOrder);
+
+        // Notify order processor
+        try {
+            await axios.post('http://localhost:3001/process-print', { orderId: populatedOrder._id });
+        } catch (error) {
+            console.error('Failed to notify order processor:', error);
+            // Don't throw error here as this is a non-critical operation
+        }
 
         res.status(201).json(populatedOrder);
     } catch (err) {
