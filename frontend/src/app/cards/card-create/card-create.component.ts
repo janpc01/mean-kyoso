@@ -32,21 +32,11 @@ export class CardCreateComponent {
   showCropperModal = false;
   imageFile: File | undefined = undefined;
   croppedImage: string | undefined = undefined;
-  showSignupModal = false;
-  pendingCard: Card | null = null;
-  form: any = {
-    username: null,
-    email: null,
-    password: null
-  };
-  isSignUpFailed = false;
-  errorMessage = '';
 
   constructor(
     private cardService: CardService,
-    private authService: AuthService,
-    private storageService: StorageService,
-    private router: Router
+    private router: Router,
+    private authService: AuthService
   ) {}
 
   private closeCropperModal(clearImage: boolean = true): void {
@@ -59,38 +49,25 @@ export class CardCreateComponent {
   }
 
   createCard(): void {
-    if (!this.authService.getToken()) {
-      // Store the card data temporarily and show signup modal
-      this.pendingCard = { ...this.card };
-      this.showSignupModal = true;
+    const token = this.authService.getToken();
+    if (!token) {
+      this.router.navigate(['/login'], {
+        queryParams: { returnUrl: '/user/cards/create' }
+      });
       return;
     }
-
-    console.log('Creating card with data:', this.card);
-
-    const requiredFields = {
-      name: 'Name',
-      beltRank: 'Belt Rank',
-      achievement: 'Achievement',
-      clubName: 'Club Name',
-      image: 'Image URL'
-    };
-
-    for (const [field, label] of Object.entries(requiredFields)) {
-      if (!this.card[field as CardKey]?.trim()) {
-        alert(`${label} is required`);
-        return;
-      }
-    }
-
-    this.cardService.createCard(this.card, this.authService.getToken()!).subscribe({
+    
+    this.cardService.createCard(this.card, token).subscribe({
       next: () => {
-        alert('Card created successfully!');
         this.router.navigate(['/user/cards']);
       },
       error: (err) => {
         console.error('Error creating card:', err);
-        alert('Error creating card: ' + (err.error?.message || err.message));
+        if (err.status === 401) {
+          this.router.navigate(['/login'], {
+            queryParams: { returnUrl: '/user/cards/create' }
+          });
+        }
       }
     });
   }
@@ -143,40 +120,5 @@ export class CardCreateComponent {
 
   cancelCropping(): void {
     this.closeCropperModal();
-  }
-
-  onSignupSubmit(): void {
-    const { username, email, password } = this.form;
-
-    this.authService.register(username, email, password).subscribe({
-      next: () => {
-        // After registration, automatically login
-        this.authService.login(username, password).subscribe({
-          next: loginData => {
-            this.storageService.saveUser(loginData);
-            this.showSignupModal = false;
-            // Continue with card creation
-            this.createCard();
-          },
-          error: err => {
-            this.errorMessage = err.error.message;
-            this.isSignUpFailed = true;
-          }
-        });
-      },
-      error: err => {
-        this.errorMessage = err.error.message;
-        this.isSignUpFailed = true;
-      }
-    });
-  }
-
-  onSignupSuccess(): void {
-    this.showSignupModal = false;
-    if (this.pendingCard) {
-      this.card = this.pendingCard;
-      this.createCard();
-      this.pendingCard = null;
-    }
   }
 }

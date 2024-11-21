@@ -23,7 +23,7 @@ db.mongoose.connect(`mongodb://${dbConfig.HOST}:${dbConfig.PORT}/${dbConfig.DB}`
     });
 
 const corsOptions = {
-    origin: "http://localhost:8081",
+    origin: ["http://localhost:3000", "http://localhost:8081"],
     credentials: true
 };
 

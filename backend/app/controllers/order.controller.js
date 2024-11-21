@@ -46,7 +46,10 @@ exports.createOrder = async (req, res) => {
 
         // Notify order processor
         try {
-            await axios.post('http://localhost:3001/process-print', { orderId: populatedOrder._id });
+            await axios.post('http://localhost:3001/api/process-order', { 
+                orderId: populatedOrder._id 
+            });
+            console.log('Order processor notified successfully');
         } catch (error) {
             console.error('Failed to notify order processor:', error);
             // Don't throw error here as this is a non-critical operation
