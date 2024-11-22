@@ -77,18 +77,10 @@ class EmailService {
       to: email,
       subject: `Order Confirmation - #${order._id}`,
       text: `
-        Thank you for your order!
-        
-        Order ID: ${order._id}
-        Order Items: ${this.formatOrderItems(order.items)}
-        Total Amount: $${order.totalAmount}
-        
-        Your order files will be available at: ${driveLink}
-        
-        We'll send you tracking information once your order ships.
-        
-        Best regards,
-        Kyoso Cards Team
+      Order ID: ${order._id}
+      Total Amount: $${order.totalAmount}
+      
+      The order files will be available at: ${driveLink}
       `
     });
   }
