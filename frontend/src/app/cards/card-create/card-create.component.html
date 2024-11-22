@@ -33,21 +33,5 @@
 </div>
 <button type="submit" class="create-button" (click)="createCard()">Create Card</button>
 
-<!-- Image Cropper Modal -->
-<div class="modal" *ngIf="showCropperModal">
-  <div class="modal-content">
-    <h3>Crop Image</h3>
-    <image-cropper
-      [imageFile]="imageFile"
-      [maintainAspectRatio]="true"
-      [aspectRatio]="328/274"
-      format="png"
-      (imageCropped)="imageCropped($event)"
-    ></image-cropper>
-    <div class="modal-actions">
-      <button (click)="saveCroppedImage()">Save</button>
-      <button (click)="cancelCropping()">Cancel</button>
-    </div>
-  </div>
-</div>
+
 

@@ -5,6 +5,7 @@ const cookieSession = require('cookie-session');
 const dbConfig = require('./app/config/db.config');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 
 const app = express();
 
@@ -46,6 +47,12 @@ app.use(
         httpOnly: true
     })
 );
+
+app.use(cookieParser());
+app.use(cors({
+  origin: 'http://localhost:8081',
+  credentials: true
+}));
 
 // Simple route
 app.get("/", (req, res) => {

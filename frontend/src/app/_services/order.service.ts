@@ -3,6 +3,8 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { StorageService } from './storage.service';
 import { environment } from '../../environments/environment';
+import { AuthService } from './auth.service';
+import { switchMap } from 'rxjs/operators';
 
 export interface ShippingAddress {
   fullName: string;
@@ -48,7 +50,8 @@ export class OrderService {
 
   constructor(
     private http: HttpClient,
-    private storageService: StorageService
+    private storageService: StorageService,
+    private authService: AuthService
   ) {}
 
   private getHeaders(): HttpHeaders {
@@ -64,21 +67,16 @@ export class OrderService {
       items: orderItems,
       shippingAddress,
       totalAmount,
-      paymentDetails,
-      isGuestOrder: true
-    }, { 
-      headers: new HttpHeaders({ 'Content-Type': 'application/json' })
+      paymentDetails
     });
   }
 
   getUserOrders(): Observable<Order[]> {
-    const headers = this.getHeaders();
-    return this.http.get<Order[]>(this.baseUrl, { headers });
+    return this.http.get<Order[]>(this.baseUrl);
   }
 
   getOrderById(orderId: string): Observable<Order> {
-    const headers = this.getHeaders();
-    return this.http.get<Order>(`${this.baseUrl}/${orderId}`, { headers });
+    return this.http.get<Order>(`${this.baseUrl}/${orderId}`);
   }
 
   updateOrderStatus(orderId: string, orderStatus: Order['orderStatus']): Observable<Order> {

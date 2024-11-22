@@ -1,46 +1,13 @@
-const { authJwt } = require('../middlewares');
-const controller = require('../controllers/card.controller');
+module.exports = function(app) {
+  const cards = require("../controllers/card.controller.js");
+  const { verifyToken } = require("../middlewares/authJwt");
 
-module.exports = function (app) {
-    app.use(function (req, res, next) {
-        res.header(
-            "Access-Control-Allow-Headers",
-            "x-access-token, Origin, Content-Type, Accept"
-        );
-        next();
-    });
-
-    // Card routes
-    app.post(
-        "/api/cards",
-        [authJwt.verifyToken], // Ensure the user is authenticated
-        controller.createCard
-    );
-
-    app.put(
-        "/api/cards/:cardId",
-        [authJwt.verifyToken], // Ensure the user is authenticated
-        controller.updateCard
-    );
-
-    app.delete(
-        "/api/cards/:cardId",
-        [authJwt.verifyToken], // Ensure the user is authenticated
-        controller.deleteCard
-    );
-
-    app.get(
-        "/api/cards/user/:userId",
-        [authJwt.verifyToken], // Ensure the user is authenticated
-        controller.getUserCards
-    );
-
-    app.put(
-        "/api/cards/:cardId/print",
-        [authJwt.verifyToken], // Ensure the user is authenticated
-        controller.incrementPrintCount
-    );
-
-    app.get("/api/cards/all", controller.getAllCards);
-    app.get("/api/cards/search", controller.searchCards);
+  // Protected routes (require authentication)
+  app.post("/api/cards", [verifyToken], cards.createCard);
+  app.get("/api/cards/user/:userId", [verifyToken], cards.getUserCards);
+  
+  // Public routes
+  app.get("/api/cards/search", cards.searchCards);
+  app.get("/api/cards", cards.getAllCards);
+  app.get("/api/cards/:id", cards.findOne);
 };

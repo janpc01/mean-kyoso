@@ -2,11 +2,10 @@ const { createPaymentIntent } = require('../services/stripe.service');
 
 exports.createPaymentIntent = async (req, res) => {
   try {
-    const { amount, email, isGuest } = req.body;
+    const { amount, email } = req.body;
     
-    // You might want to add additional validation for guest users
-    if (isGuest && !email) {
-      return res.status(400).json({ error: 'Email is required for guest checkout' });
+    if (!email) {
+      return res.status(400).json({ error: 'Email is required for checkout' });
     }
 
     const paymentIntent = await createPaymentIntent(amount, email);

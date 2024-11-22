@@ -23,48 +23,36 @@ export class CardListComponent implements OnInit {
     private router: Router
   ) {}
 
-  ngOnInit(): void {
-    const token = this.authService.getToken();
-    if (!token) {
-      console.error('No token found. User not authenticated.');
-      return;
-    }
+  async ngOnInit(): Promise<void> {
+    try {
+      await this.authService.verify();
+      const user = this.storageService.getUser();
+      
+      if (!user || !user.id) {
+        await this.router.navigate(['/login']);
+        return;
+      }
 
-    const user = this.storageService.getUser();
-    if (!user || !user.id) {
-      console.error('No user ID found.');
-      return;
-    }
-
-    console.log('Attempting to fetch cards for user:', user.id);
-
-    this.cardService.getUserCards(user.id, token).subscribe({
-      next: (data) => {
-        console.log('Cards received:', data); // Add this for debugging
-        this.cards = data;
-      },
-      error: (err) => {
+      try {
+        this.cards = await this.cardService.getUserCards(user.id);
+      } catch (err: any) {
         console.error('Error fetching cards:', err);
-        if (err.error && err.error.message) {
-          console.error('Server error message:', err.error.message);
+        if (err.status === 401) {
+          await this.router.navigate(['/login']);
         }
-      },
-    });
+      }
+    } catch (err) {
+      await this.router.navigate(['/login']);
+    }
   }
 
-  deleteCard(cardId: string): void {
-    const token = this.authService.getToken(); // Retrieve token
-    if (!token) {
-      console.error('No token found. User not authenticated.');
-      return;
+  async deleteCard(cardId: string): Promise<void> {
+    try {
+      await this.cardService.deleteCard(cardId);
+      this.cards = this.cards.filter((card) => card._id !== cardId);
+    } catch (err) {
+      console.error('Error deleting card:', err);
     }
-
-    this.cardService.deleteCard(cardId, token).subscribe({
-      next: () => {
-        this.cards = this.cards.filter((card) => card._id !== cardId);
-      },
-      error: (err) => console.error('Error deleting card:', err),
-    });
   }
 
   addToCart(card: any): void {
@@ -82,9 +70,9 @@ export class CardListComponent implements OnInit {
     this.cardToDelete = null;
   }
 
-  confirmDelete(): void {
+  async confirmDelete(): Promise<void> {
     if (this.cardToDelete) {
-      this.deleteCard(this.cardToDelete._id);
+      await this.deleteCard(this.cardToDelete._id);
       this.closeDeleteModal();
     }
   }

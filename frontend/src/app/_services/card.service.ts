@@ -1,61 +1,59 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CardService {
-  private baseUrl = 'http://localhost:8080/api/cards'; // Backend API URL
+  private baseUrl = 'http://localhost:8080/api/cards';
+  private httpOptions = {
+    headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
+    withCredentials: true
+  };
 
   constructor(private http: HttpClient) {}
 
-  // Helper method to create headers with the token
-  private createHeaders(token: string): HttpHeaders {
-    return new HttpHeaders({
-      'Content-Type': 'application/json',
-      'x-access-token': token, // Add token to headers
-    });
+  async getUserCards(userId: string): Promise<any> {
+    return firstValueFrom(
+      this.http.get(`${this.baseUrl}/user/${userId}`, this.httpOptions)
+    );
   }
 
-  // Get all cards for a specific user
-  getUserCards(userId: string, token: string): Observable<any> {
-    const headers = this.createHeaders(token);
-    return this.http.get(`${this.baseUrl}/user/${userId}`, { headers });
+  async createCard(card: any): Promise<any> {
+    return firstValueFrom(
+      this.http.post(this.baseUrl, card, this.httpOptions)
+    );
   }
 
-  // Create a new card
-  createCard(card: any, token: string): Observable<any> {
-    const headers = this.createHeaders(token);
-    return this.http.post(this.baseUrl, card, { headers });
+  async updateCard(cardId: string, card: any): Promise<any> {
+    return firstValueFrom(
+      this.http.put(`${this.baseUrl}/${cardId}`, card, this.httpOptions)
+    );
   }
 
-  // Update a card
-  updateCard(cardId: string, card: any, token: string): Observable<any> {
-    const headers = this.createHeaders(token);
-    return this.http.put(`${this.baseUrl}/${cardId}`, card, { headers });
+  async deleteCard(cardId: string): Promise<any> {
+    return firstValueFrom(
+      this.http.delete(`${this.baseUrl}/${cardId}`, this.httpOptions)
+    );
   }
 
-  // Increment print count
-  incrementPrintCount(cardId: string, token: string): Observable<any> {
-    const headers = this.createHeaders(token);
-    return this.http.put(`${this.baseUrl}/${cardId}/print`, {}, { headers });
+  async incrementPrintCount(cardId: string): Promise<any> {
+    return firstValueFrom(
+      this.http.put(`${this.baseUrl}/${cardId}/print`, {}, this.httpOptions)
+    );
   }
 
-  // Delete a card
-  deleteCard(cardId: string, token: string): Observable<any> {
-    const headers = this.createHeaders(token);
-    return this.http.delete(`${this.baseUrl}/${cardId}`, { headers });
+  async getAllCards(): Promise<any> {
+    return firstValueFrom(
+      this.http.get(`${this.baseUrl}/all`)
+    );
   }
 
-  // Search cards
-  getAllCards(): Observable<any> {
-    return this.http.get(`${this.baseUrl}/all`);
+  async searchCards(query: string): Promise<any> {
+    return firstValueFrom(
+      this.http.get(`${this.baseUrl}/search?q=${query}`)
+    );
   }
-
-  searchCards(query: string): Observable<any> {
-    return this.http.get(`${this.baseUrl}/search?q=${query}`);
-  }
-
-  
 }

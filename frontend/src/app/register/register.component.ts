@@ -10,7 +10,6 @@ import { Router } from '@angular/router';
 })
 export class RegisterComponent {
   form: any = {
-    username: null,
     email: null,
     password: null
   };
@@ -24,31 +23,24 @@ export class RegisterComponent {
     private router: Router
   ) { }
 
-  onSubmit(): void {
-    const { username, email, password } = this.form;
+  async onSubmit(): Promise<void> {
+    const { email, password } = this.form;
 
-    this.authService.register(username, email, password).subscribe({
-      next: data => {
-        // After successful registration, automatically log in
-        this.authService.login(username, password).subscribe({
-          next: loginData => {
-            this.storageService.saveUser(loginData);
-            this.isSuccessful = true;
-            this.isSignUpFailed = false;
-            
-            // Navigate to home page and force reload
-            window.location.href = '/home';
-          },
-          error: err => {
-            this.errorMessage = err.error.message;
-            this.isSignUpFailed = true;
-          }
-        });
-      },
-      error: err => {
-        this.errorMessage = err.error.message;
-        this.isSignUpFailed = true;
-      }
-    });
+    try {
+      await this.authService.register(email, password);
+      // After successful registration, automatically log in
+      const loginData = await this.authService.login(email, password);
+      this.storageService.saveUser(loginData);
+      this.isSuccessful = true;
+      this.isSignUpFailed = false;
+      
+      const redirectUrl = localStorage.getItem('redirectAfterLogin') || '/home';
+      localStorage.removeItem('redirectAfterLogin');
+      
+      await this.router.navigate([redirectUrl]);
+    } catch (err: any) {
+      this.errorMessage = err.error.message;
+      this.isSignUpFailed = true;
+    }
   }
 }

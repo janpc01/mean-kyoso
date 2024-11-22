@@ -1,42 +1,16 @@
-const { authJwt } = require('../middlewares');
 const controller = require('../controllers/order.controller');
 
-console.log(controller);
-
 module.exports = function(app) {
-    app.use(function(req, res, next) {
-        res.header(
-            "Access-Control-Allow-Headers",
-            "x-access-token, Origin, Content-Type, Accept"
-        );
-        next();
-    });
-
-    // Create new order
-    app.post(
-        "/api/orders",
-        [authJwt.verifyToken],
-        controller.createOrder
+  app.use(function(req, res, next) {
+    res.header(
+      "Access-Control-Allow-Headers",
+      "Origin, Content-Type, Accept"
     );
+    next();
+  });
 
-    // Get user's orders
-    app.get(
-        "/api/orders",
-        [authJwt.verifyToken],
-        controller.getUserOrders
-    );
-
-    // Get specific order
-    app.get(
-        "/api/orders/:orderId",
-        [authJwt.verifyToken],
-        controller.getOrderById
-    );
-
-    // Update order status (could be restricted to admin/moderator)
-    app.put(
-        "/api/orders/:orderId/status",
-        [authJwt.verifyToken, authJwt.isAdmin],
-        controller.updateOrderStatus
-    );
+  app.post("/api/orders", controller.createOrder);
+  app.get("/api/orders", controller.getUserOrders);
+  app.get("/api/orders/:orderId", controller.getOrderById);
+  app.put("/api/orders/:orderId/status", controller.updateOrderStatus);
 };

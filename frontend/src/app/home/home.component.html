@@ -2,6 +2,11 @@
   <!-- Left side - Create Card Form -->
   <div class="left-panel">
     <h2>Create Your Card!</h2>
+    @if (!isLoggedIn) {
+      <div class="register-prompt">
+        <a routerLink="/register" class="register-link">Click to Register and Create a Card!</a>
+      </div>
+    }
     <app-card-create></app-card-create>
   </div>
 

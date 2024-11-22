@@ -1,57 +1,51 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { CardService } from '../_services/card.service';
 import { Router } from '@angular/router';
 import { CartService } from '../_services/cart.service';
+import { CardCreateComponent } from '../cards/card-create/card-create.component';
+import { StorageService } from '../_services/storage.service';
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent {
   searchQuery: string = '';
   searchResults: any[] = [];
   searchTimeout: any;
+  isLoggedIn = false;
 
   constructor(
     private cardService: CardService,
     private cartService: CartService,
-    private router: Router
-  ) {}
-
-  ngOnInit(): void {
-    const redirectUrl = localStorage.getItem('redirectAfterLogin');
-    if (redirectUrl) {
-      localStorage.removeItem('redirectAfterLogin');
-      this.router.navigate([redirectUrl]);
-    }
+    private router: Router,
+    private storageService: StorageService
+  ) {
+    this.isLoggedIn = this.storageService.isLoggedIn();
   }
 
   onSearch(): void {
-    // Clear existing timeout
     if (this.searchTimeout) {
       clearTimeout(this.searchTimeout);
     }
 
-    // Set new timeout to prevent too many API calls
     this.searchTimeout = setTimeout(() => {
       if (this.searchQuery.trim()) {
         this.searchCards();
       } else {
-        this.searchResults = []; // Clear results when search is empty
+        this.searchResults = [];
       }
     }, 300);
   }
 
-  private searchCards(): void {
-    this.cardService.searchCards(this.searchQuery).subscribe({
-      next: (data) => {
-        this.searchResults = data;
-      },
-      error: (err) => {
-        console.error('Error searching cards:', err);
-      }
-    });
+  private async searchCards(): Promise<void> {
+    try {
+      const data = await this.cardService.searchCards(this.searchQuery);
+      this.searchResults = data;
+    } catch (err) {
+      console.error('Error searching cards:', err);
+    }
   }
 
   addToCart(card: any): void {

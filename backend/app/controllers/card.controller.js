@@ -124,7 +124,7 @@ exports.incrementPrintCount = async (req, res) => {
 exports.getAllCards = async (req, res) => {
     try {
       const cards = await Card.find()
-        .populate('userId', 'username')
+        .populate('userId')
         .sort({ createdAt: -1 });
       res.status(200).json(cards);
     } catch (err) {
@@ -138,10 +138,23 @@ exports.getAllCards = async (req, res) => {
       const query = req.query.q;
       const cards = await Card.find({
         name: { $regex: query, $options: 'i' }  // Only search by name
-      }).populate('userId', 'username');
+      }).populate('userId');
       
       res.status(200).json(cards);
     } catch (err) {
       res.status(500).json({ message: "Failed to search cards", error: err.message });
     }
   };
+
+// Add this with the other exports
+exports.findOne = async (req, res) => {
+  try {
+    const card = await Card.findById(req.params.id);
+    if (!card) {
+      return res.status(404).json({ message: "Card not found" });
+    }
+    res.status(200).json(card);
+  } catch (err) {
+    res.status(500).json({ message: "Error retrieving card", error: err.message });
+  }
+};

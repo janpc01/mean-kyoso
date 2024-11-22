@@ -1,73 +1,41 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { tap } from 'rxjs/operators'; // Use tap to handle side effects like saving token
-import { StorageService } from './storage.service';
+import { firstValueFrom } from 'rxjs';
 
 const AUTH_API = 'http://localhost:8080/api/auth/';
 
 const httpOptions = {
   headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
+  withCredentials: true
 };
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  constructor(
-    private http: HttpClient,
-    private storageService: StorageService
-  ) {}
+  constructor(private http: HttpClient) {}
 
-  // Login API Call
-  login(username: string, password: string): Observable<any> {
-    return this.http.post(AUTH_API + 'signin', { username, password }, httpOptions).pipe(
-      tap((response: any) => {
-        // Save token to localStorage upon successful login
-        if (response.token) {
-          localStorage.setItem('token', response.token);
-        }
-      })
+  async login(email: string, password: string): Promise<any> {
+    return firstValueFrom(
+      this.http.post(AUTH_API + 'signin', { email, password }, httpOptions)
     );
   }
 
-  // Registration API Call
-  register(username: string, email: string, password: string): Observable<any> {
-    return this.http.post(AUTH_API + 'signup', { username, email, password }, httpOptions);
-  }
-
-  // Logout API Call
-  logout(): Observable<any> {
-    // Clear the token first
-    localStorage.removeItem('token');
-    // Return the API call with error handling
-    return this.http.post(AUTH_API + 'signout', {}, httpOptions).pipe(
-      tap(() => {
-        // Clear storage immediately after successful logout
-        this.storageService.clean();
-      })
+  async logout(): Promise<any> {
+    return firstValueFrom(
+      this.http.post(AUTH_API + 'signout', {}, httpOptions)
     );
   }
 
-  // Retrieve the stored token
-  getToken(): string | null {
-    return localStorage.getItem('token');
+  async verify(): Promise<any> {
+    return firstValueFrom(
+      this.http.get(AUTH_API + 'verify', httpOptions)
+    );
   }
 
-  // Add this method to AuthService
-  generateGuestToken(): Observable<any> {
-    const guestId = 'guest_' + Math.random().toString(36).substring(2);
-    
-    return this.http.post(AUTH_API + 'guest-token', { 
-      guestId,
-      email: localStorage.getItem('guestEmail') || undefined
-    }, httpOptions)
-    .pipe(
-      tap((response: any) => {
-        if (response.token) {
-          localStorage.setItem('token', response.token);
-        }
-      })
+  async register(email: string, password: string): Promise<any> {
+    return firstValueFrom(
+      this.http.post(AUTH_API + 'signup', { email, password }, httpOptions)
     );
   }
 }

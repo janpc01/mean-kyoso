@@ -98,24 +98,3 @@
           {{ isProcessing ? 'Processing...' : 'Pay and Complete Order' }}
         </button>
       </div>
-  
-      <!-- Add this after the shipping form section -->
-      <div class="checkout-options-modal" *ngIf="showCheckoutOptions">
-        <div class="modal-content">
-          <h3>Choose Checkout Option</h3>
-          <div class="options-container">
-            <button class="option-button" (click)="router.navigate(['/login'])">
-              Login to Continue
-            </button>
-            <button class="option-button" (click)="router.navigate(['/register'])">
-              Create Account
-            </button>
-            <button class="option-button" (click)="handleGuestCheckout()">
-              Continue as Guest
-            </button>
-          </div>
-          <button class="close-button" (click)="showCheckoutOptions = false">×</button>
-        </div>
-      </div>
-    </form>
-  </div>

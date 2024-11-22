@@ -14,13 +14,10 @@ export class StorageService {
 
   public saveUser(user: any): void {
     window.sessionStorage.removeItem(USER_KEY);
-    // Ensure we're storing the user ID along with other user data
     const userData = {
       id: user.id,
-      username: user.username,
       email: user.email,
-      roles: user.roles,
-      token: user.token
+      roles: user.roles
     };
     window.sessionStorage.setItem(USER_KEY, JSON.stringify(userData));
   }
@@ -30,7 +27,7 @@ export class StorageService {
     if (user) {
       return JSON.parse(user);
     }
-    return null; // Changed from empty object to null for better null checking
+    return null;
   }
 
   public isLoggedIn(): boolean {

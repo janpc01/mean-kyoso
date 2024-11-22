@@ -249,3 +249,23 @@
   .card-actions:hover {
     background-color: #0056b3;
   }
+  
+  .register-prompt {
+    text-align: center;
+    margin: 20px 0;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+  }
+  
+  .register-link {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  
+  .register-link:hover {
+    text-decoration: underline;
+    color: #0056b3;
+  }

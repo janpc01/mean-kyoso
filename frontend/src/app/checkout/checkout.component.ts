@@ -37,8 +37,8 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     this.initForm();
   }
 
-  async ngOnInit() {
-    // No need for automatic payment initialization
+  ngOnInit() {
+    
   }
 
   ngOnDestroy() {

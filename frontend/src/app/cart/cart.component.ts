@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CartService, CartItem } from '../_services/cart.service';
 import { Router } from '@angular/router';
-import { StorageService } from '../_services/storage.service';
 
 @Component({
   selector: 'app-cart',
@@ -14,8 +13,7 @@ export class CartComponent implements OnInit {
 
   constructor(
     private cartService: CartService,
-    private router: Router,
-    private storageService: StorageService
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -37,6 +35,12 @@ export class CartComponent implements OnInit {
   }
 
   checkout(): void {
+    if (this.cartItems.length === 0) {
+      alert('Your cart is empty');
+      return;
+    }
+    
+    // Always proceed to checkout - it will handle guest vs authenticated flow
     this.router.navigate(['/checkout']);
   }
 }

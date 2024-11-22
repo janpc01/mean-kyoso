@@ -6,7 +6,19 @@ const orderItemSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 const orderSchema = new mongoose.Schema({
-    user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    user: { 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: "User", 
+        required: function() { return !this.isGuestOrder; }
+    },
+    isGuestOrder: { 
+        type: Boolean, 
+        default: false 
+    },
+    guestEmail: { 
+        type: String,
+        required: function() { return this.isGuestOrder; }
+    },
     items: [
         { type: mongoose.Schema.Types.ObjectId, ref: "OrderItem", required: true }
     ],

@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { StorageService } from './_services/storage.service';
 import { AuthService } from './_services/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-root',
@@ -14,7 +15,7 @@ export class AppComponent {
   showModeratorBoard = false;
   username?: string;
 
-  constructor(private storageService: StorageService, private authService: AuthService) { }
+  constructor(private storageService: StorageService, private authService: AuthService, private router: Router) { }
 
   ngOnInit(): void {
     this.isLoggedIn = this.storageService.isLoggedIn();
@@ -30,28 +31,22 @@ export class AppComponent {
     }
   }
 
-  logout(): void {
-    this.authService.logout().subscribe({
-      next: () => {
-        this.storageService.clean();
-        this.isLoggedIn = false;
-        this.roles = [];
-        this.showAdminBoard = false;
-        this.showModeratorBoard = false;
-        this.username = undefined;
-        
-        window.location.reload();
-      },
-      error: () => {
-        this.storageService.clean();
-        this.isLoggedIn = false;
-        this.roles = [];
-        this.showAdminBoard = false;
-        this.showModeratorBoard = false;
-        this.username = undefined;
-        
-        window.location.reload();
-      }
-    });
+  async logout(): Promise<void> {
+    this.isLoggedIn = false;
+    this.roles = [];
+    this.showAdminBoard = false;
+    this.showModeratorBoard = false;
+    this.storageService.clean();
+  
+    try {
+      await this.authService.logout();
+      await this.router.navigate(['/home']);
+    } catch (err) {
+      console.error('Logout error:', err);
+      await this.router.navigate(['/home']);
+    }
   }
 }
+
+
+

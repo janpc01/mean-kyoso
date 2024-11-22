@@ -6,10 +6,8 @@ const axios = require('axios');
 
 exports.createOrder = async (req, res) => {
     try {
-        const { items, shippingAddress, totalAmount } = req.body;
-        const userId = req.userId;
-
-        // Create order items first
+        const { items, shippingAddress, totalAmount, paymentDetails } = req.body;
+        
         const orderItems = await Promise.all(items.map(async (item) => {
             const orderItem = new OrderItem({
                 card: item.cardId,
@@ -18,19 +16,17 @@ exports.createOrder = async (req, res) => {
             return await orderItem.save();
         }));
 
-        // Create the main order
         const order = new Order({
-            user: userId,
             items: orderItems.map(item => item._id),
             shippingAddress,
             totalAmount,
             paymentStatus: "Paid",
-            orderStatus: "Processing"
+            orderStatus: "Processing",
+            isGuestOrder: true,
+            guestEmail: shippingAddress.email
         });
 
         const savedOrder = await order.save();
-        
-        // Populate the response with card details
         const populatedOrder = await Order.findById(savedOrder._id)
             .populate({
                 path: 'items',
@@ -41,23 +37,9 @@ exports.createOrder = async (req, res) => {
                 }
             });
 
-        // Send email notification
-        await sendAdminOrderNotification(populatedOrder);
-
-        // Notify order processor
-        try {
-            await axios.post('http://localhost:3001/api/process-order', { 
-                orderId: populatedOrder._id 
-            });
-            console.log('Order processor notified successfully');
-        } catch (error) {
-            console.error('Failed to notify order processor:', error);
-            // Don't throw error here as this is a non-critical operation
-        }
-
         res.status(201).json(populatedOrder);
-    } catch (err) {
-        res.status(500).json({ message: "Error creating order", error: err.message });
+    } catch (error) {
+        res.status(500).json({ message: "Error creating order", error: error.message });
     }
 };
 
@@ -96,8 +78,7 @@ exports.getOrderById = async (req, res) => {
             return res.status(404).json({ message: "Order not found" });
         }
 
-        // Check if the order belongs to the requesting user
-        if (order.user.toString() !== req.userId) {
+        if (!order.isGuestOrder && order.user && order.user.toString() !== req.userId) {
             return res.status(403).json({ message: "Not authorized to view this order" });
         }
 

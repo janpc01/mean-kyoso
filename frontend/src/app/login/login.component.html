@@ -13,18 +13,26 @@
         novalidate
       >
         <div class="form-group">
-          <label for="username">Username</label>
+          <label for="email">Email</label>
           <input
-            type="text"
+            type="email"
             class="form-control"
-            name="username"
-            [(ngModel)]="form.username"
+            name="email"
+            [(ngModel)]="form.email"
             required
-            #username="ngModel"
-            [ngClass]="{ 'is-invalid': f.submitted && username.errors }"
+            email
+            #email="ngModel"
+            [ngClass]="{ 'is-invalid': f.submitted && email.errors }"
           />
-          @if (username.errors && f.submitted) {
-          <div class="invalid-feedback">Username is required</div>
+          @if (email.errors && f.submitted) {
+          <div class="invalid-feedback">
+            @if (email.errors['required']) {
+            <div>Email is required</div>
+            }
+            @if (email.errors['email']) {
+            <div>Email must be a valid email address</div>
+            }
+          </div>
           }
         </div>
         <div class="form-group">
@@ -51,7 +59,11 @@
           }
         </div>
         <div class="form-group">
-          <button class="btn btn-primary btn-block">Login</button>
+          <button 
+            class="btn btn-primary btn-block" 
+            [disabled]="isLoading">
+            {{ isLoading ? 'Logging in...' : 'Login' }}
+          </button>
         </div>
         <div class="form-group">
           @if (f.submitted && isLoginFailed) {
