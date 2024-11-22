@@ -38,7 +38,7 @@ export class CardCreateComponent {
   imageCropped(event: ImageCroppedEvent) {
     if (event.objectUrl) {
       this.croppedImage = this.sanitizer.bypassSecurityTrustUrl(event.objectUrl);
-      this.card.image = event.base64;
+      this.card.image = event.objectUrl;
     }
   }
 
