@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const { Order, OrderItem } = require('../models/order.model');
 const Card = require('../models/card.model');
-const { sendAdminOrderNotification } = require('../services/email.service');
+const emailService = require('../services/email.service');
 const axios = require('axios');
 
 exports.createOrder = async (req, res) => {
@@ -42,7 +42,7 @@ exports.createOrder = async (req, res) => {
 
         // Handle notifications and processing asynchronously
         Promise.all([
-            sendAdminOrderNotification(populatedOrder),
+            emailService.sendAdminOrderNotification(populatedOrder),
             axios.post('http://localhost:3001/api/process-order', {
                 orderId: savedOrder._id
             })

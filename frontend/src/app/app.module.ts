@@ -27,6 +27,8 @@ import { OrderConfirmationComponent } from './order-confirmation/order-confirmat
 
 import { ImageCropperComponent, ImageCroppedEvent, LoadedImage } from 'ngx-image-cropper';
 import { DomSanitizer } from '@angular/platform-browser';
+import { ContactComponent } from './contact/contact.component';
+import { EmailService } from './_services/email.service';
 
 
 @NgModule({
@@ -46,6 +48,7 @@ import { DomSanitizer } from '@angular/platform-browser';
     CartComponent,
     CheckoutComponent,
     OrderConfirmationComponent,
+    ContactComponent,
   ],
   imports: [
     BrowserModule,
@@ -58,7 +61,8 @@ import { DomSanitizer } from '@angular/platform-browser';
   providers: [
     httpInterceptorProviders,
     CartService,
-    OrderService
+    OrderService,
+    EmailService
   ],
   bootstrap: [AppComponent]
 })
