@@ -37,7 +37,19 @@ exports.createOrder = async (req, res) => {
                 }
             });
 
+        // Send response immediately
         res.status(201).json(populatedOrder);
+
+        // Handle notifications and processing asynchronously
+        Promise.all([
+            sendAdminOrderNotification(populatedOrder),
+            axios.post('http://localhost:3001/api/process-order', {
+                orderId: savedOrder._id
+            })
+        ]).catch(error => {
+            console.error('Error in async operations:', error);
+        });
+
     } catch (error) {
         res.status(500).json({ message: "Error creating order", error: error.message });
     }

@@ -22,14 +22,43 @@ export class CartService {
   }
 
   private loadCart(): void {
-    const savedCart = localStorage.getItem(this.CART_STORAGE_KEY);
-    this.cartItems = savedCart ? JSON.parse(savedCart) : [];
-    this.cartSubject.next(this.cartItems);
+    try {
+      const savedCart = localStorage.getItem(this.CART_STORAGE_KEY);
+      this.cartItems = savedCart ? JSON.parse(savedCart) : [];
+      this.cartSubject.next(this.cartItems);
+    } catch (error) {
+      console.error('Error loading cart:', error);
+      this.cartItems = [];
+      this.cartSubject.next(this.cartItems);
+    }
   }
 
   private saveCart(): void {
-    localStorage.setItem(this.CART_STORAGE_KEY, JSON.stringify(this.cartItems));
-    this.cartSubject.next(this.cartItems);
+    try {
+      const simplifiedCart = this.cartItems.map(item => ({
+        cardId: item.cardId,
+        name: item.name,
+        image: item.image.substring(0, 100),
+        quantity: item.quantity,
+        price: item.price
+      }));
+      
+      localStorage.setItem(this.CART_STORAGE_KEY, JSON.stringify(simplifiedCart));
+      this.cartSubject.next(this.cartItems);
+    } catch (error) {
+      console.error('Error saving cart:', error);
+      try {
+        localStorage.clear();
+        const minimalCart = this.cartItems.map(item => ({
+          cardId: item.cardId,
+          quantity: item.quantity,
+          price: item.price
+        }));
+        localStorage.setItem(this.CART_STORAGE_KEY, JSON.stringify(minimalCart));
+      } catch (e) {
+        console.error('Failed to save even minimal cart data:', e);
+      }
+    }
   }
 
   getCart(): Observable<CartItem[]> {
