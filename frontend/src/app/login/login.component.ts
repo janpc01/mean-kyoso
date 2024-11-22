@@ -59,15 +59,13 @@ export class LoginComponent {
     this.isLoggedIn = true;
     this.roles = this.storageService.getUser().roles;
     
-    // Wait for storage and state updates
-    await new Promise(resolve => setTimeout(resolve, 100));
-    
+    // Force a full page reload after successful login
     const redirectUrl = localStorage.getItem('redirectAfterLogin');
     if (redirectUrl) {
       localStorage.removeItem('redirectAfterLogin');
-      await this.router.navigate([redirectUrl]);
+      window.location.href = redirectUrl;
     } else {
-      await this.router.navigate(['/home']);
+      window.location.href = '/home';
     }
   }
 
