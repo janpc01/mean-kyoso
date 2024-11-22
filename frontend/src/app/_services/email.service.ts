@@ -13,11 +13,11 @@ export interface ContactMessage {
   providedIn: 'root'
 })
 export class EmailService {
-  private apiUrl = `${environment.apiUrl}/api/email`;
+  private apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) { }
 
   async sendContactEmail(contactData: ContactMessage): Promise<any> {
-    return this.http.post(`${this.apiUrl}/contact`, contactData).toPromise();
+    return this.http.post(`${this.apiUrl}/email/contact`, contactData).toPromise();
   }
 }
