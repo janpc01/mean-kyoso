@@ -2,6 +2,8 @@ import { Component } from '@angular/core';
 import { CardService } from '../../_services/card.service';
 import { Router } from '@angular/router';
 import { AuthService } from '../../_services/auth.service';
+import { ImageCroppedEvent, LoadedImage } from 'ngx-image-cropper';
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-card-create',
@@ -17,24 +19,53 @@ export class CardCreateComponent {
     image: ''
   };
 
-  imageFile: any = null;
+  imageChangedEvent: any = null;
+  croppedImage: SafeUrl | null = null;
+  showCropModal: boolean = false;
 
   constructor(
     private cardService: CardService,
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private sanitizer: DomSanitizer
   ) {}
 
   onFileSelected(event: any): void {
-    const file = event.target.files[0];
-    if (file) {
-      this.imageFile = file;
-      const reader = new FileReader();
-      reader.onload = (e: any) => {
-        this.card.image = e.target.result;
-      };
-      reader.readAsDataURL(file);
+    this.imageChangedEvent = event;
+    this.showCropModal = true;
+  }
+
+  imageCropped(event: ImageCroppedEvent) {
+    if (event.objectUrl) {
+      this.croppedImage = this.sanitizer.bypassSecurityTrustUrl(event.objectUrl);
+      this.card.image = event.base64;
     }
+  }
+
+  imageLoaded(image: LoadedImage) {
+    // Image loaded into cropper
+  }
+
+  cropperReady() {
+    // Cropper is ready to use
+  }
+
+  loadImageFailed() {
+    alert('Failed to load image. Please try another image.');
+    this.showCropModal = false;
+    this.imageChangedEvent = null;
+  }
+
+  saveCrop() {
+    this.showCropModal = false;
+    this.imageChangedEvent = null;
+  }
+
+  cancelCrop() {
+    this.showCropModal = false;
+    this.imageChangedEvent = null;
+    this.croppedImage = null;
+    this.card.image = '';
   }
 
   async createCard(): Promise<void> {

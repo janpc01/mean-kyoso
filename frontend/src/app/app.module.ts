@@ -25,6 +25,9 @@ import { CheckoutComponent } from './checkout/checkout.component';
 import { OrderService } from './_services/order.service';
 import { OrderConfirmationComponent } from './order-confirmation/order-confirmation.component';
 
+import { ImageCropperComponent, ImageCroppedEvent, LoadedImage } from 'ngx-image-cropper';
+import { DomSanitizer } from '@angular/platform-browser';
+
 
 @NgModule({
   declarations: [
@@ -49,7 +52,8 @@ import { OrderConfirmationComponent } from './order-confirmation/order-confirmat
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
-    AppRoutingModule
+    AppRoutingModule,
+    ImageCropperComponent
   ],
   providers: [
     httpInterceptorProviders,
