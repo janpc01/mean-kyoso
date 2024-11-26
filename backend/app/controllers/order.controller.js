@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const { Order, OrderItem } = require('../models/order.model');
 const Card = require('../models/card.model');
 const emailService = require('../services/email.service');
-const axios = require('axios');
+const fetch = require('node-fetch');
 
 exports.createOrder = async (req, res) => {
     try {
@@ -17,13 +17,12 @@ exports.createOrder = async (req, res) => {
         }));
 
         const order = new Order({
+            user: req.userId || null,
             items: orderItems.map(item => item._id),
             shippingAddress,
             totalAmount,
             paymentStatus: "Paid",
-            orderStatus: "Processing",
-            isGuestOrder: true,
-            guestEmail: shippingAddress.email
+            orderStatus: "Processing"
         });
 
         const savedOrder = await order.save();
@@ -37,18 +36,26 @@ exports.createOrder = async (req, res) => {
                 }
             });
 
+        // Send order confirmation email with fully populated order
+        await emailService.sendOrderConfirmation(populatedOrder);
+
         // Send response immediately
         res.status(201).json(populatedOrder);
 
         // Handle notifications and processing asynchronously
-        Promise.all([
-            emailService.sendAdminOrderNotification(populatedOrder),
-            axios.post('http://localhost:3001/api/process-order', {
-                orderId: savedOrder._id
+        const response = await fetch('http://localhost:3001/api/process-order', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                orderId: savedOrder._id.toString()
             })
-        ]).catch(error => {
-            console.error('Error in async operations:', error);
         });
+
+        if (!response.ok) {
+            console.error('Error in async operations:', await response.text());
+        }
 
     } catch (error) {
         res.status(500).json({ message: "Error creating order", error: error.message });
@@ -88,10 +95,6 @@ exports.getOrderById = async (req, res) => {
 
         if (!order) {
             return res.status(404).json({ message: "Order not found" });
-        }
-
-        if (!order.isGuestOrder && order.user && order.user.toString() !== req.userId) {
-            return res.status(403).json({ message: "Not authorized to view this order" });
         }
 
         res.status(200).json(order);

@@ -40,7 +40,6 @@ export class CartComponent implements OnInit {
       return;
     }
     
-    // Always proceed to checkout - it will handle guest vs authenticated flow
     this.router.navigate(['/checkout']);
   }
 }

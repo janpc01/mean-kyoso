@@ -19,72 +19,67 @@ class EmailService {
     });
   }
 
-  async sendAdminOrderNotification(order) {
-    const emailContent = `
-      New Order Received!
-      
-      Order ID: ${order._id}
-      Order Items: ${this.formatOrderItems(order.items)}
-      Total Amount: $${order.totalAmount}
-      
-      Shipping Information:
-      Name: ${order.shippingAddress.fullName}
-      Address: ${order.shippingAddress.addressLine1}
-      ${order.shippingAddress.addressLine2 ? order.shippingAddress.addressLine2 + '\n' : ''}
-      City: ${order.shippingAddress.city}
-      State/Province: ${order.shippingAddress.state}
-      Postal Code: ${order.shippingAddress.postalCode}
-      Country: ${order.shippingAddress.country}
-      Phone: ${order.shippingAddress.phone}
-      
-      Order Status: ${order.orderStatus}
-      Payment Status: Paid
-    `;
-
-    await this.transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: process.env.EMAIL_USER,
-      subject: `New Order Received - #${order._id}`,
-      text: emailContent
-    });
+  // Generic email sending method
+  async sendEmail(to, subject, text) {
+    try {
+      await this.transporter.sendMail({
+        from: process.env.EMAIL_USER,
+        to,
+        subject,
+        text
+      });
+    } catch (error) {
+      console.error('Error sending email:', error);
+      throw error;
+    }
   }
 
+  // Contact form emails
   async sendContactEmail(contactData) {
     const { name, email, subject, message } = contactData;
 
     // Send to admin
-    await this.transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: process.env.EMAIL_USER,
-      subject: `Contact Form: ${subject}`,
-      text: `From: ${name}\nEmail: ${email}\nMessage: ${message}`
-    });
+    await this.sendEmail(
+      process.env.ADMIN_EMAIL,
+      `Contact Form: ${subject}`,
+      `From: ${name}\nEmail: ${email}\nMessage: ${message}`
+    );
 
     // Send confirmation to user
-    await this.transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: email,
-      subject: 'Thank you for contacting Kyoso Cards',
-      text: `Dear ${name},\n\nThank you for your message. We'll get back to you soon.\n\nBest regards,\nKyoso Cards Team`
-    });
+    await this.sendEmail(
+      email,
+      'Thank you for contacting Kyoso Cards',
+      `Dear ${name},\n\nThank you for your message. We'll get back to you soon.\n\nBest regards,\nKyoso Cards Team`
+    );
   }
 
-  async sendOrderConfirmation(order, driveLink) {
-    const email = order.isGuestOrder ? order.guestEmail : order.user.email;
+  // Order related emails
+  async sendOrderConfirmation(order) {
+    const orderItems = this.formatOrderItems(order.items);
+    const shippingAddress = this.formatShippingAddress(order.shippingAddress);
     
-    await this.transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: email,
-      subject: `Order Confirmation - #${order._id}`,
-      text: `
-      Order ID: ${order._id}
-      Total Amount: $${order.totalAmount}
-      
-      The order files will be available at: ${driveLink}
-      `
-    });
+    await this.sendEmail(
+        order.shippingAddress.email,
+        `Order Confirmation - #${order._id}`,
+        `
+        Thank you for your order!
+
+        Order ID: ${order._id}
+        Total Amount: $${order.totalAmount}
+
+        Items Ordered:
+        ${orderItems}
+
+        Shipping To:
+        ${shippingAddress}
+        
+        Best regards,
+        Kyoso Cards Team
+        `
+    );
   }
 
+  // Helper methods
   formatOrderItems(items) {
     return items.map(item => 
       `Card Details:
@@ -98,6 +93,19 @@ class EmailService {
       - Subtotal: $${item.quantity * item.card.price}
       `
     ).join('\n\n');
+  }
+
+  formatShippingAddress(address) {
+    return `
+      Name: ${address.fullName}
+      Address: ${address.addressLine1}
+      ${address.addressLine2 ? address.addressLine2 + '\n' : ''}
+      City: ${address.city}
+      State/Province: ${address.state}
+      Postal Code: ${address.postalCode}
+      Country: ${address.country}
+      Phone: ${address.phone}
+    `;
   }
 }
 

@@ -9,15 +9,7 @@ const orderSchema = new mongoose.Schema({
     user: { 
         type: mongoose.Schema.Types.ObjectId, 
         ref: "User", 
-        required: function() { return !this.isGuestOrder; }
-    },
-    isGuestOrder: { 
-        type: Boolean, 
-        default: false 
-    },
-    guestEmail: { 
-        type: String,
-        required: function() { return this.isGuestOrder; }
+        required: false 
     },
     items: [
         { type: mongoose.Schema.Types.ObjectId, ref: "OrderItem", required: true }
@@ -30,7 +22,8 @@ const orderSchema = new mongoose.Schema({
         state: { type: String },
         postalCode: { type: String, required: true },
         country: { type: String, required: true },
-        phone: { type: String, required: true }
+        phone: { type: String, required: true },
+        email: { type: String, required: true }
     },
     paymentStatus: { type: String, enum: ["Pending", "Paid", "Failed"], default: "Pending" },
     totalAmount: { type: Number, required: true },

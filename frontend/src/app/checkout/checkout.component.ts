@@ -225,24 +225,5 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     }
   }
 
-  async handleGuestCheckout() {
-    try {
-      const stripe = await this.initializeStripe();
-      if (!stripe) {
-        throw new Error('Failed to load Stripe');
-      }
-      this.stripe = stripe;
-      
-      const email = this.checkoutForm.get('shipping.email')?.value;
-      if (!email) {
-        throw new Error('Email is required');
-      }
-      
-      await this.initializePaymentElement();
-      this.showPaymentElement = true;
-    } catch (error) {
-      console.error('Payment initialization error:', error);
-      alert('Error initializing payment. Please try again.');
-    }
-  }
+  
 }
