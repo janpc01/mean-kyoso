@@ -20,7 +20,6 @@ module.exports = function(app) {
       await emailService.sendContactEmail({ name, email, subject, message });
       res.send({ message: "Your message has been sent successfully!" });
     } catch (error) {
-      console.error("Email sending error:", error);
       res.status(500).send({ 
         message: "Failed to send message. Please try again later.",
         error: process.env.NODE_ENV === 'development' ? error.message : undefined

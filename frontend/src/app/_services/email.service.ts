@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
+import { lastValueFrom } from 'rxjs';
 
 export interface ContactMessage {
   name: string;
@@ -18,6 +19,6 @@ export class EmailService {
   constructor(private http: HttpClient) { }
 
   async sendContactEmail(contactData: ContactMessage): Promise<any> {
-    return this.http.post(`${this.apiUrl}/email/contact`, contactData).toPromise();
+    return lastValueFrom(this.http.post(`${this.apiUrl}/email/contact`, contactData));
   }
 }

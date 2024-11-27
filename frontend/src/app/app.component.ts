@@ -9,6 +9,7 @@ import { Router } from '@angular/router';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
+  title = 'Kyoso Cards';
   private roles: string[] = [];
   isLoggedIn = false;
   showAdminBoard = false;
@@ -42,7 +43,6 @@ export class AppComponent {
       await this.authService.logout();
       await this.router.navigate(['/home']);
     } catch (err) {
-      console.error('Logout error:', err);
       await this.router.navigate(['/home']);
     }
   }

@@ -16,7 +16,6 @@ const createPaymentIntent = async (amount, email) => {
     });
     return paymentIntent;
   } catch (error) {
-    console.error('Error creating payment intent:', error);
     throw error;
   }
 };

@@ -27,7 +27,6 @@ export class CartService {
       this.cartItems = savedCart ? JSON.parse(savedCart) : [];
       this.cartSubject.next(this.cartItems);
     } catch (error) {
-      console.error('Error loading cart:', error);
       this.cartItems = [];
       this.cartSubject.next(this.cartItems);
     }
@@ -46,7 +45,6 @@ export class CartService {
       localStorage.setItem(this.CART_STORAGE_KEY, JSON.stringify(simplifiedCart));
       this.cartSubject.next(this.cartItems);
     } catch (error) {
-      console.error('Error saving cart:', error);
       try {
         localStorage.clear();
         const minimalCart = this.cartItems.map(item => ({
@@ -56,7 +54,6 @@ export class CartService {
         }));
         localStorage.setItem(this.CART_STORAGE_KEY, JSON.stringify(minimalCart));
       } catch (e) {
-        console.error('Failed to save even minimal cart data:', e);
       }
     }
   }

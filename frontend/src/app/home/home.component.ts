@@ -44,7 +44,6 @@ export class HomeComponent {
       const data = await this.cardService.searchCards(this.searchQuery);
       this.searchResults = data;
     } catch (err) {
-      console.error('Error searching cards:', err);
     }
   }
 

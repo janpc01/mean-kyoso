@@ -29,7 +29,6 @@ class EmailService {
         text
       });
     } catch (error) {
-      console.error('Error sending email:', error);
       throw error;
     }
   }

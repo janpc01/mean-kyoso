@@ -8,8 +8,6 @@ exports.createCard = async (req, res) => {
         const { name, beltRank, achievement, clubName, image } = req.body;
         const userId = req.userId;
 
-        console.log('Received data:', { name, beltRank, achievement, clubName, image, userId });
-
         if (!userId) {
             return res.status(400).json({ message: "User ID is required" });
         }
@@ -25,10 +23,8 @@ exports.createCard = async (req, res) => {
         });
 
         const savedCard = await newCard.save();
-        console.log('Card saved successfully:', savedCard);
         res.status(201).json(savedCard);
     } catch (err) {
-        console.error('Error in createCard:', err);
         res.status(500).json({ 
             message: "Failed to create card", 
             error: err.message,
@@ -88,10 +84,8 @@ exports.getUserCards = async (req, res) => {
 
         const userCards = await Card.find({ userId: userId });
 
-        console.log('User cards:', userCards);
         res.status(200).json(userCards);
     } catch (err) {
-        console.error('Error in getUserCards:', err); // Add this for debugging
         res.status(500).json({ 
             message: "Failed to retrieve cards", 
             error: err.message 

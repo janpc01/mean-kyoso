@@ -47,7 +47,6 @@ export class OrderConfirmationComponent implements OnInit {
               this.cartService.clearCart();
             }
           } catch (error) {
-            console.error('Error creating order:', error);
           }
         }
       });
@@ -67,7 +66,6 @@ export class OrderConfirmationComponent implements OnInit {
           this.orderDetails = order;
         },
         error: (error) => {
-          console.error('Error loading order details:', error);
         }
       });
     }

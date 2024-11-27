@@ -53,10 +53,6 @@ exports.createOrder = async (req, res) => {
             })
         });
 
-        if (!response.ok) {
-            console.error('Error in async operations:', await response.text());
-        }
-
     } catch (error) {
         res.status(500).json({ message: "Error creating order", error: error.message });
     }

@@ -71,7 +71,6 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       this.stripe = stripe;
       return stripe;
     } catch (error) {
-      console.error('Stripe initialization error:', error);
       throw error;
     }
   }
@@ -100,7 +99,6 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       const element = this.elements.create('payment');
       element.mount('#payment-element');
     } catch (error) {
-      console.error('Error initializing payment:', error);
       this.showPaymentElement = false; // Hide the payment element on error
       throw error;
     }
@@ -134,12 +132,10 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       });
 
       if (error) {
-        console.error('Payment error:', error);
         alert('Payment failed: ' + error.message);
         this.isProcessing = false;
       }
     } catch (e) {
-      console.error('Error:', e);
       this.isProcessing = false;
     }
   }
@@ -185,7 +181,6 @@ export class CheckoutComponent implements OnInit, OnDestroy {
               });
             },
             error: (error) => {
-              console.error('Error creating order:', error);
               alert('There was an error processing your order. Please try again.');
               this.isProcessing = false;
             }
@@ -217,7 +212,6 @@ export class CheckoutComponent implements OnInit, OnDestroy {
         }, 0);
         
       } catch (error) {
-        console.error('Payment initialization error:', error);
         alert('Error initializing payment. Please try again.');
       }
     } else {

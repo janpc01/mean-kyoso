@@ -84,7 +84,6 @@ export class CardCreateComponent {
       await this.cardService.createCard(this.card);
       await this.router.navigate(['/user/cards']);
     } catch (err: any) {
-      console.error('Error creating card:', err);
       if (err.status === 401) {
         localStorage.setItem('redirectAfterLogin', '/user/cards/create');
         await this.router.navigate(['/login']);
