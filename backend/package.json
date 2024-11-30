@@ -2,7 +2,7 @@
   "name": "js-express-login--mongodb",
   "version": "1.0.0",
   "description": "Node.js Express + MongoDB: Login and Registration with Mongoose",
-  "main": "server.js",
+  "main": "server-prod.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
