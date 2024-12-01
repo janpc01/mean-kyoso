@@ -11,6 +11,7 @@ A complete authentication system built with Angular 17 that implements JWT (JSON
 - HTTP interceptor for handling auth tokens
 - Session storage management
 - Responsive UI with Bootstrap
+- test
 
 ## Prerequisites
 
