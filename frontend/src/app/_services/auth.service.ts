@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 
-const AUTH_API = 'http://localhost:8080/api/auth/';
+const AUTH_API = 'https://kyoso-backend-dhheg8akajdre6ce.canadacentral-01.azurewebsites.net/api/auth/';
 
 const httpOptions = {
   headers: new HttpHeaders({ 'Content-Type': 'application/json' }),

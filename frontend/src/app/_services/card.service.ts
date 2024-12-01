@@ -7,7 +7,7 @@ import { firstValueFrom } from 'rxjs';
   providedIn: 'root',
 })
 export class CardService {
-  private baseUrl = 'http://localhost:8080/api/cards';
+  private baseUrl = 'https://kyoso-backend-dhheg8akajdre6ce.canadacentral-01.azurewebsites.net/api/cards';
   private httpOptions = {
     headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
     withCredentials: true

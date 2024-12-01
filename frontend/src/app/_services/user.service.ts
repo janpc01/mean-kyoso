@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { firstValueFrom } from 'rxjs';
 
-const API_URL = 'http://localhost:8080/api/test/';
+const API_URL = 'https://kyoso-backend-dhheg8akajdre6ce.canadacentral-01.azurewebsites.net/api/test/';
 
 @Injectable({
   providedIn: 'root'
