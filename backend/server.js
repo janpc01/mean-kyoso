@@ -24,7 +24,7 @@ db.mongoose.connect(`mongodb://${dbConfig.HOST}:${dbConfig.PORT}/${dbConfig.DB}`
     });
 
 const corsOptions = {
-    origin: ["http://localhost:3000", "http://localhost:8081"],
+    origin: ["https://mango-plant-0d19e2110.4.azurestaticapps.net", "order-processor-ewexgkcvhnhzbqhc.canadacentral-01.azurewebsites.net"],
     credentials: true
 };
 
@@ -50,7 +50,7 @@ app.use(
 
 app.use(cookieParser());
 app.use(cors({
-  origin: 'http://localhost:8081',
+  origin: 'https://mango-plant-0d19e2110.4.azurestaticapps.net',
   credentials: true
 }));
 
