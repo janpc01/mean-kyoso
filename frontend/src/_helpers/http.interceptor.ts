@@ -13,12 +13,15 @@ export class AuthInterceptor implements HttpInterceptor {
   ];
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    // Don't add credentials for public routes
+    console.log('Intercepting request:', req.url);
+    console.log('Current publicRoutes:', this.publicRoutes);
+    
     if (this.publicRoutes.some(route => req.url.includes(route))) {
+      console.log('Skipping credentials for public route');
       return next.handle(req);
     }
 
-    // Add credentials for authenticated routes
+    console.log('Adding credentials to request');
     const clonedRequest = req.clone({
       withCredentials: true
     });

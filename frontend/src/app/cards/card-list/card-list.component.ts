@@ -25,16 +25,20 @@ export class CardListComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     try {
+      console.log('Attempting to verify user...');
       await this.authService.verify();
       const user = this.storageService.getUser();
+      console.log('User from storage:', user);
       
       if (!user || !user.id) {
+        console.log('No user or user ID found');
         await this.router.navigate(['/login']);
         return;
       }
 
       try {
         this.cards = await this.cardService.getUserCards(user.id);
+        console.log('Cards fetched:', this.cards);
       } catch (err: any) {
         console.error('Error fetching cards:', err);
         if (err.status === 401) {
@@ -42,6 +46,7 @@ export class CardListComponent implements OnInit {
         }
       }
     } catch (err) {
+      console.error('Verification failed:', err);
       await this.router.navigate(['/login']);
     }
   }
