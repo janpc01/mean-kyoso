@@ -59,13 +59,12 @@ export class LoginComponent {
     this.isLoggedIn = true;
     this.roles = this.storageService.getUser().roles;
     
-    // Force a full page reload after successful login
     const redirectUrl = localStorage.getItem('redirectAfterLogin');
     if (redirectUrl) {
       localStorage.removeItem('redirectAfterLogin');
-      window.location.href = redirectUrl;
+      await this.router.navigate([redirectUrl]);
     } else {
-      window.location.href = '/home';
+      await this.router.navigate(['/home']);
     }
   }
 

@@ -3,16 +3,29 @@ import { HttpEvent, HttpInterceptor, HttpHandler, HttpRequest, HTTP_INTERCEPTORS
 import { Observable } from 'rxjs';
 
 @Injectable()
-export class HttpInterceptorService implements HttpInterceptor {
+export class AuthInterceptor implements HttpInterceptor {
+  private publicRoutes = [
+    '/api/auth/signin',
+    '/api/auth/signup',
+    '/api/cards/search',
+    '/api/cards/all',
+    '/api/test/all'
+  ];
+
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    // Clone the request and add withCredentials for cookie handling
-    const authReq = req.clone({
+    // Don't add credentials for public routes
+    if (this.publicRoutes.some(route => req.url.includes(route))) {
+      return next.handle(req);
+    }
+
+    // Add credentials for authenticated routes
+    const clonedRequest = req.clone({
       withCredentials: true
     });
-    return next.handle(authReq);
+    return next.handle(clonedRequest);
   }
 }
 
 export const httpInterceptorProviders = [
-  { provide: HTTP_INTERCEPTORS, useClass: HttpInterceptorService, multi: true },
+  { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
 ];

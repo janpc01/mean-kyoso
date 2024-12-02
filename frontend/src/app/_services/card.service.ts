@@ -47,13 +47,13 @@ export class CardService {
 
   async getAllCards(): Promise<any> {
     return firstValueFrom(
-      this.http.get(`${this.baseUrl}/all`)
+      this.http.get(`${this.baseUrl}/all`, { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) })
     );
   }
 
   async searchCards(query: string): Promise<any> {
     return firstValueFrom(
-      this.http.get(`${this.baseUrl}/search?q=${query}`)
+      this.http.get(`${this.baseUrl}/search?q=${query}`, { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) })
     );
   }
 }
