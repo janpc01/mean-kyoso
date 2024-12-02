@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
-
 import { RegisterComponent } from './register/register.component';
 import { LoginComponent } from './login/login.component';
 import { HomeComponent } from './home/home.component';
@@ -35,19 +34,18 @@ const routes: Routes = [
   { path: 'user/cards/create', component: CardCreateComponent },
   { path: 'user/cards/edit/:id', component: CardEditComponent },
 
-
   // Checkout routes under `/checkout`
   { path: 'checkout', component: CheckoutComponent },
+  { path: 'order-confirmation', component: OrderConfirmationComponent, runGuardsAndResolvers: 'always' },
 
-  // Default route
-  { path: '', redirectTo: 'home', pathMatch: 'full' },
-
+  // Other pages
   { path: 'game-rules', component: GameRulesComponent },
   { path: 'cart', component: CartComponent },
-  { path: 'order-confirmation', component: OrderConfirmationComponent, runGuardsAndResolvers: 'always' },
+  { path: 'contact', component: ContactComponent },
 
-  { path: 'order-confirmation', component: OrderConfirmationComponent, runGuardsAndResolvers: 'always' },
-  { path: 'contact', component: ContactComponent }
+  // Default and wildcard routes
+  { path: '', redirectTo: 'home', pathMatch: 'full' },
+  { path: '**', redirectTo: 'home' }
 ];
 
 @NgModule({
