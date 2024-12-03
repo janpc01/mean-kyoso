@@ -82,31 +82,59 @@ export class CardCreateComponent {
     try {
       await this.authService.verify();
       
-      // Convert objectUrl to base64
-      const response = await fetch(this.card.image);
-      const blob = await response.blob();
-      const reader = new FileReader();
+      // Create a canvas to resize the image
+      const img = new Image();
+      const maxWidth = 800; // Maximum width for the image
+      const maxHeight = 800; // Maximum height for the image
       
-      const base64Image = await new Promise<string>((resolve) => {
-        reader.onloadend = () => resolve(reader.result as string);
-        reader.readAsDataURL(blob);
+      const resizedImage = await new Promise<string>((resolve, reject) => {
+        img.onload = () => {
+          let width = img.width;
+          let height = img.height;
+          
+          // Calculate new dimensions
+          if (width > height) {
+            if (width > maxWidth) {
+              height *= maxWidth / width;
+              width = maxWidth;
+            }
+          } else {
+            if (height > maxHeight) {
+              width *= maxHeight / height;
+              height = maxHeight;
+            }
+          }
+          
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+          
+          // Get compressed image as base64
+          resolve(canvas.toDataURL('image/jpeg', 0.7)); // 0.7 quality to reduce size
+        };
+        
+        img.onerror = reject;
+        img.src = this.card.image;
       });
   
-      // Send the card with base64 image
+      // Send the card with resized image
       const cardData = {
         ...this.card,
-        image: base64Image
+        image: resizedImage
       };
   
       await this.cardService.createCard(cardData);
       await this.router.navigate(['/user/cards']);
     } catch (err: any) {
+      console.error('Error creating card:', err);
       if (err.status === 401) {
         localStorage.setItem('redirectAfterLogin', '/user/cards/create');
         await this.router.navigate(['/login']);
       } else {
-        console.error('Error creating card:', err);
-        alert('Error creating card. Please try again.');
+        alert('Error creating card. The image might be too large. Please try a smaller image or compress it first.');
       }
     }
   }
