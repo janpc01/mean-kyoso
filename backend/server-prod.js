@@ -13,7 +13,7 @@ const db = require('./app/models');
 const Role = db.role;
 
 // Connect to MongoDB
-mongoose.connect("mongodb://kyoso-db:CpZ0svqG8rrveYGMuJxI8KldLzHg5evj0QGGZARkA6seberWJDztXRnHFaEp8RDx3bvpPOdiXQCmACDbu2QACg%3D%3D@kyoso-db.mongo.cosmos.azure.com:10255/?ssl=true&retrywrites=false&maxIdleTimeMS=120000&appName=@kyoso-db@", {
+mongoose.connect(process.env.COSMOSDB_CONNECTION_STRING, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 })
