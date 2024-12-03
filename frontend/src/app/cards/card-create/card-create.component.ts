@@ -73,24 +73,40 @@ export class CardCreateComponent {
       alert('Please fill in all required fields');
       return;
     }
-
+  
     if (!this.card.image) {
       alert('Please select an image');
       return;
     }
-
+  
     try {
       await this.authService.verify();
-      await this.cardService.createCard(this.card);
+      
+      // Convert objectUrl to base64
+      const response = await fetch(this.card.image);
+      const blob = await response.blob();
+      const reader = new FileReader();
+      
+      const base64Image = await new Promise<string>((resolve) => {
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.readAsDataURL(blob);
+      });
+  
+      // Send the card with base64 image
+      const cardData = {
+        ...this.card,
+        image: base64Image
+      };
+  
+      await this.cardService.createCard(cardData);
       await this.router.navigate(['/user/cards']);
     } catch (err: any) {
       if (err.status === 401) {
         localStorage.setItem('redirectAfterLogin', '/user/cards/create');
         await this.router.navigate(['/login']);
       } else {
-        alert('Please register or login to create a card');
-        localStorage.setItem('redirectAfterLogin', '/user/cards/create');
-        await this.router.navigate(['/login']);
+        console.error('Error creating card:', err);
+        alert('Error creating card. Please try again.');
       }
     }
   }
