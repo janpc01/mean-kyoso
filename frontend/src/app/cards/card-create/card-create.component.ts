@@ -82,48 +82,24 @@ export class CardCreateComponent {
     try {
       await this.authService.verify();
       
-      // Create a canvas to resize the image
-      const img = new Image();
-      const maxWidth = 800; // Maximum width for the image
-      const maxHeight = 800; // Maximum height for the image
+      // Convert the objectUrl to base64 with reduced quality
+      const response = await fetch(this.card.image);
+      const blob = await response.blob();
       
-      const resizedImage = await new Promise<string>((resolve, reject) => {
-        img.onload = () => {
-          let width = img.width;
-          let height = img.height;
-          
-          // Calculate new dimensions
-          if (width > height) {
-            if (width > maxWidth) {
-              height *= maxWidth / width;
-              width = maxWidth;
-            }
-          } else {
-            if (height > maxHeight) {
-              width *= maxHeight / height;
-              height = maxHeight;
-            }
-          }
-          
-          const canvas = document.createElement('canvas');
-          canvas.width = width;
-          canvas.height = height;
-          
-          const ctx = canvas.getContext('2d');
-          ctx?.drawImage(img, 0, 0, width, height);
-          
-          // Get compressed image as base64
-          resolve(canvas.toDataURL('image/jpeg', 0.7)); // 0.7 quality to reduce size
+      const base64Image = await new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          // Get the base64 string without the data URL prefix
+          const base64String = (reader.result as string).split(',')[1];
+          resolve(base64String);
         };
-        
-        img.onerror = reject;
-        img.src = this.card.image;
+        reader.readAsDataURL(blob);
       });
   
-      // Send the card with resized image
+      // Send the card with base64 image
       const cardData = {
         ...this.card,
-        image: resizedImage
+        image: base64Image
       };
   
       await this.cardService.createCard(cardData);
@@ -134,7 +110,7 @@ export class CardCreateComponent {
         localStorage.setItem('redirectAfterLogin', '/user/cards/create');
         await this.router.navigate(['/login']);
       } else {
-        alert('Error creating card. The image might be too large. Please try a smaller image or compress it first.');
+        alert('Error creating card. Please try again with a smaller image.');
       }
     }
   }
