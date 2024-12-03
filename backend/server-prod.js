@@ -27,7 +27,13 @@ mongoose.connect(process.env.COSMOSDB_CONNECTION_STRING, {
 });
 
 const corsOptions = {
-    origin: ["https://kyosocards.com", "https://mango-plant-0d19e2110.4.azurestaticapps.net", "order-processor-ewexgkcvhnhzbqhc.canadacentral-01.azurewebsites.net"],
+    origin: (origin, callback) => {
+        if (!origin || ["https://kyosocards.com", "https://mango-plant-0d19e2110.4.azurestaticapps.net", "order-processor-ewexgkcvhnhzbqhc.canadacentral-01.azurewebsites.net"].includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error("Not allowed by CORS"));
+        }
+    },
     credentials: true,
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'X-Requested-With', 'Accept', 'Access-Control-Allow-Headers'],
