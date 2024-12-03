@@ -28,9 +28,14 @@ export class AuthService {
   }
 
   async verify(): Promise<any> {
-    return firstValueFrom(
-      this.http.get(AUTH_API + 'verify', httpOptions)
-    );
+    try {
+      return firstValueFrom(
+        this.http.get(AUTH_API + 'verify', httpOptions)
+      );
+    } catch (error) {
+      console.error('Verify request failed:', error);
+      throw error;
+    }
   }
 
   async register(email: string, password: string): Promise<any> {
