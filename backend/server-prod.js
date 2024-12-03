@@ -28,7 +28,10 @@ mongoose.connect("mongodb://kyoso-db:CpZ0svqG8rrveYGMuJxI8KldLzHg5evj0QGGZARkA6s
 
 const corsOptions = {
     origin: ["https://kyosocards.com", "https://mango-plant-0d19e2110.4.azurestaticapps.net", "order-processor-ewexgkcvhnhzbqhc.canadacentral-01.azurewebsites.net"],
-    credentials: true
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    exposedHeaders: ['set-cookie']
 };
 
 // Apply CORS middleware
@@ -37,25 +40,22 @@ app.use(cors(corsOptions));
 // Handle preflight requests
 app.options('*', cors(corsOptions));
 
-// Parse requests of content-type - application/json
+// Parse requests
 app.use(bodyParser.json({ limit: '10mb' }));
-
-// Parse requests of content-type - application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
+app.use(cookieParser());
 
+// Session configuration
 app.use(
     cookieSession({
         name: "jwt",
         keys: [process.env.COOKIE_SECRET || "template-cookie-secret"],
-        httpOnly: true
+        httpOnly: true,
+        secure: true,  // for HTTPS
+        sameSite: 'none',  // important for cross-site cookies
+        maxAge: 24 * 60 * 60 * 1000 // 24 hours
     })
 );
-
-app.use(cookieParser());
-app.use(cors({
-  origin: ["https://kyosocards.com", "https://mango-plant-0d19e2110.4.azurestaticapps.net"],
-  credentials: true
-}));
 
 // Simple route
 app.get("/", (req, res) => {
