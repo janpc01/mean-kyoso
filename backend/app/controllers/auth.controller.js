@@ -63,18 +63,21 @@ exports.signin = async (req, res) => {
       expiresIn: 86400 // 24 hours
     });
 
-    // Set HttpOnly cookie
+    // Set cookie with correct options for cross-origin
     res.cookie('jwt', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 24 * 60 * 60 * 1000 // 24 hours
+      secure: true, // Always use secure in production
+      sameSite: 'none', // Important for cross-origin
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      path: '/' // Ensure cookie is available for all paths
     });
+
+    const authorities = user.roles.map(role => "ROLE_" + role.name.toUpperCase());
 
     res.status(200).send({
       id: user._id,
       email: user.email,
-      roles: user.roles.map(role => role.name)
+      roles: authorities
     });
   } catch (err) {
     res.status(500).send({ message: err.message });
@@ -82,10 +85,12 @@ exports.signin = async (req, res) => {
 };
 
 exports.signout = (req, res) => {
-  res.clearCookie('jwt', {
+  res.cookie('jwt', '', {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict'
+    secure: true,
+    sameSite: 'none',
+    maxAge: 0,
+    path: '/'
   });
   res.status(200).send({ message: "Signed out successfully!" });
 };
@@ -94,13 +99,17 @@ exports.verify = (req, res) => {
   const token = req.cookies.jwt;
   
   if (!token) {
-    return res.status(401).send({ message: "Unauthorized!" });
+    return res.status(401).send({ message: "No token provided!" });
   }
 
   try {
-    jwt.verify(token, config.secret);
-    res.status(200).send({ message: "Token is valid" });
+    const decoded = jwt.verify(token, config.secret);
+    // Add user info to response
+    res.status(200).send({ 
+      message: "Token is valid",
+      userId: decoded.id
+    });
   } catch (err) {
-    res.status(401).send({ message: "Invalid token!" });
+    res.status(401).send({ message: "Unauthorized!" });
   }
 };
