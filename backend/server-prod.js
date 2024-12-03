@@ -12,7 +12,7 @@ const db = require('./app/models');
 const Role = db.role;
 
 // Connect to MongoDB
-mongoose.connect(process.env.COSMOSDB_CONNECTION_STRING, {
+mongoose.connect(process.env.CUSTOMCONNSTR_COSMOSDB_CONNECTION_STRING, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 })
