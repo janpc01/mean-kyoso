@@ -18,11 +18,15 @@ export class AuthService {
   async login(email: string, password: string): Promise<any> {
     console.log('Attempting login...');
     const response = await firstValueFrom(
-      this.http.post(AUTH_API + 'signin', { email, password }, httpOptions)
+      this.http.post(AUTH_API + 'signin', { email, password }, {
+        ...httpOptions,
+        observe: 'response'
+      })
     );
-    console.log('Login response:', response);
-    console.log('Cookies after login:', document.cookie);
-    return response;
+    console.log('Login response headers:', response.headers.keys());
+    console.log('Set-Cookie header:', response.headers.get('set-cookie'));
+    console.log('Login response body:', response.body);
+    return response.body;
   }
 
   async logout(): Promise<any> {
