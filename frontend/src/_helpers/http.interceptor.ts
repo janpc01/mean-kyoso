@@ -5,8 +5,6 @@ import { Observable } from 'rxjs';
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
   private publicRoutes = [
-    '/api/auth/signin',
-    '/api/auth/signup',
     '/api/cards/search',
     '/api/cards/all',
     '/api/test/all'
