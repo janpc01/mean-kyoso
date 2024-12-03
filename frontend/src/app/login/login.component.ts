@@ -54,7 +54,10 @@ export class LoginComponent {
   }
 
   private async handleLoginSuccess(data: any): Promise<void> {
+    console.log('Login success data:', data);
+    console.log('Cookies before storage:', document.cookie);
     this.storageService.saveUser(data);
+    console.log('Cookies after storage:', document.cookie);
     this.isLoginFailed = false;
     this.isLoggedIn = true;
     this.roles = this.storageService.getUser().roles;

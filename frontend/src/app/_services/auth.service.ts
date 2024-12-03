@@ -16,9 +16,13 @@ export class AuthService {
   constructor(private http: HttpClient) {}
 
   async login(email: string, password: string): Promise<any> {
-    return firstValueFrom(
+    console.log('Attempting login...');
+    const response = await firstValueFrom(
       this.http.post(AUTH_API + 'signin', { email, password }, httpOptions)
     );
+    console.log('Login response:', response);
+    console.log('Cookies after login:', document.cookie);
+    return response;
   }
 
   async logout(): Promise<any> {
