@@ -86,7 +86,7 @@ export class OrderService {
     console.log('Getting order with ID:', orderId);
     const options = {
       ...this.httpOptions,
-      headers: this.getHeaders()
+      headers: this.getHeaders().append('Access-Control-Request-Headers', 'x-access-token')
     };
     console.log('Request options:', options);
     
