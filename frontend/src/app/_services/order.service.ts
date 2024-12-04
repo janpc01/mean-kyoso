@@ -65,7 +65,7 @@ export class OrderService {
     const user = this.storageService.getUser();
     return new HttpHeaders({
       'Content-Type': 'application/json',
-      ...(user?.token ? { 'x-access-token': user.token } : {})
+      ...(user?.token ? { 'Authorization': `Bearer ${user.token}` } : {})
     });
   }
 
@@ -86,7 +86,7 @@ export class OrderService {
     console.log('Getting order with ID:', orderId);
     const options = {
       ...this.httpOptions,
-      headers: this.getHeaders().append('Access-Control-Request-Headers', 'x-access-token')
+      headers: this.getHeaders()
     };
     console.log('Request options:', options);
     
