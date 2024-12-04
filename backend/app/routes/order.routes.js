@@ -18,4 +18,7 @@ module.exports = function(app) {
   app.get("/api/orders", controller.getUserOrders);
   app.get("/api/orders/:orderId", controller.getOrderById);
   app.put("/api/orders/:orderId/status", controller.updateOrderStatus);
+  
+  // Add new route for payment intent
+  app.get("/api/orders/payment/:paymentIntentId", controller.findByPaymentIntent);
 };
