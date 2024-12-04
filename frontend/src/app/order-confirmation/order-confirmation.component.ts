@@ -64,7 +64,19 @@ export class OrderConfirmationComponent implements OnInit {
     if (this.orderId) {
       this.orderService.getOrderById(this.orderId).subscribe({
         next: (order) => {
-          this.orderDetails = order;
+          const formattedOrder = {
+            ...order,
+            items: order.items.map(item => ({
+              ...item,
+              card: {
+                ...item.card,
+                image: item.card.image.startsWith('data:image') 
+                  ? item.card.image 
+                  : `data:image/jpeg;base64,${item.card.image}`
+              }
+            }))
+          };
+          this.orderDetails = formattedOrder;
         },
         error: (error) => {
           console.error('Error loading order details:', error);

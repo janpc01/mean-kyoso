@@ -37,7 +37,13 @@ export class CardListComponent implements OnInit {
       }
 
       try {
-        this.cards = await this.cardService.getUserCards(user.id);
+        const rawCards = await this.cardService.getUserCards(user.id);
+        this.cards = rawCards.map((card: any) => ({
+          ...card,
+          image: card.image.startsWith('data:image') 
+            ? card.image 
+            : `data:image/jpeg;base64,${card.image}`
+        }));
         console.log('Cards fetched:', this.cards);
       } catch (err: any) {
         console.error('Error fetching cards:', err);
