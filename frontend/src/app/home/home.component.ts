@@ -41,9 +41,16 @@ export class HomeComponent {
 
   private async searchCards(): Promise<void> {
     try {
-      const data = await this.cardService.searchCards(this.searchQuery);
-      this.searchResults = data;
+      const rawResults = await this.cardService.searchCards(this.searchQuery);
+      this.searchResults = rawResults.map((card: any) => ({
+        ...card,
+        image: card.image.startsWith('data:image') 
+          ? card.image 
+          : `data:image/jpeg;base64,${card.image}`
+      }));
     } catch (err) {
+      console.error('Error searching cards:', err);
+      this.searchResults = [];
     }
   }
 
