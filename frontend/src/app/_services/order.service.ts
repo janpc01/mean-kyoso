@@ -52,23 +52,25 @@ export class OrderService {
     headers: new HttpHeaders({ 'Content-Type': 'application/json' })
   };
 
+  private authHttpOptions = {
+    headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
+    withCredentials: true
+  };
+
   constructor(
     private http: HttpClient,
     private storageService: StorageService,
     private authService: AuthService
   ) {}
 
+  // Public endpoints - no auth needed
   createOrder(orderItems: any[], shippingAddress: any, totalAmount: number, paymentDetails: any): Observable<Order> {
     return this.http.post<Order>(this.baseUrl, {
       items: orderItems,
       shippingAddress,
       totalAmount,
       paymentDetails
-    });
-  }
-
-  getUserOrders(): Observable<Order[]> {
-    return this.http.get<Order[]>(this.baseUrl);
+    }, this.httpOptions);
   }
 
   getOrderById(orderId: string): Observable<Order> {
@@ -77,20 +79,23 @@ export class OrderService {
       tap({
         next: (response) => console.log('Order service received response:', response),
         error: (error) => {
-          console.error('Order service error:', {
-            status: error.status,
-            message: error.message,
-            headers: error.headers,
-            url: error.url
-          });
+          console.error('Order service error:', error);
           throw error;
         }
       })
     );
   }
 
+  // Protected endpoints - auth required
+  getUserOrders(): Observable<Order[]> {
+    return this.http.get<Order[]>(`${this.baseUrl}/user`, this.authHttpOptions);
+  }
+
   updateOrderStatus(orderId: string, orderStatus: Order['orderStatus']): Observable<Order> {
-    const headers = this.getHeaders();
-    return this.http.put<Order>(`${this.baseUrl}/${orderId}/status`, { orderStatus }, { headers });
+    return this.http.patch<Order>(
+      `${this.baseUrl}/${orderId}/status`,
+      { status: orderStatus },
+      this.authHttpOptions
+    );
   }
 }

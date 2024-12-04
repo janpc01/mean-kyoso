@@ -8,7 +8,8 @@ export class AuthInterceptor implements HttpInterceptor {
     '/api/cards/search',
     '/api/cards/all',
     '/api/test/all',
-    '/api/orders'
+    '/api/orders/create',
+    '/api/orders/[^/]+$'  // Matches single order GET requests
   ];
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
