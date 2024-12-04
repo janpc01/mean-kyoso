@@ -28,16 +28,21 @@ mongoose.connect(process.env.CUSTOMCONNSTR_COSMOSDB_CONNECTION_STRING, {
 
 const corsOptions = {
     origin: (origin, callback) => {
-        if (!origin || ["https://kyosocards.com", "https://mango-plant-0d19e2110.4.azurestaticapps.net", "order-processor-ewexgkcvhnhzbqhc.canadacentral-01.azurewebsites.net"].includes(origin)) {
+        const allowedOrigins = [
+            "https://kyosocards.com",
+            "https://mango-plant-0d19e2110.4.azurestaticapps.net",
+            "https://order-processor-ewexgkcvhnhzbqhc.canadacentral-01.azurewebsites.net"
+        ];
+        if (!origin || allowedOrigins.includes(origin)) {
             callback(null, true);
         } else {
-            callback(new Error("Not allowed by CORS"));
+            callback(new Error(`Origin ${origin} not allowed by CORS`));
         }
     },
     credentials: true,
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'X-Requested-With', 'Accept', 'Access-Control-Allow-Headers'],
-    exposedHeaders: ['set-cookie', 'Set-Cookie'],
+    exposedHeaders: ['Set-Cookie'],
     preflightContinue: false,
     optionsSuccessStatus: 204
 };
@@ -47,21 +52,6 @@ app.use(cors(corsOptions));
 
 // Handle preflight requests
 app.options('*', cors(corsOptions));
-
-// Additional CORS headers middleware
-app.use((req, res, next) => {
-    const origin = req.headers.origin;
-    corsOptions.origin(origin, (err, allowed) => {
-        if (allowed) {
-            res.header('Access-Control-Allow-Origin', origin);
-        }
-        res.header('Access-Control-Allow-Credentials', 'true');
-        res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS');
-        res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-        next();
-    });
-});
-
 
 // Parse requests
 app.use(bodyParser.json({ limit: '10mb' }));
