@@ -93,14 +93,37 @@ export class OrderService {
     return this.http.get<Order>(`${this.baseUrl}/${orderId}`, options).pipe(
       tap({
         next: (response) => console.log('Order service received response:', response),
-        error: (error) => console.error('Order service error:', {
-          status: error.status,
-          message: error.message,
-          headers: error.headers,
-          url: error.url
-        })
+        error: (error) => {
+          console.error('Order service error:', {
+            status: error.status,
+            message: error.message,
+            headers: error.headers,
+            url: error.url
+          });
+          
+          if (error.status === 0) {
+            console.error('CORS or network error. Please check if Authorization header is allowed in CORS configuration.');
+            // You might want to retry with x-access-token as fallback
+            return this.retryWithXAccessToken(orderId);
+          }
+          throw error;
+        }
       })
     );
+  }
+
+  private retryWithXAccessToken(orderId: string): Observable<Order> {
+    console.log('Retrying request with x-access-token...');
+    const user = this.storageService.getUser();
+    const options = {
+      ...this.httpOptions,
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        'x-access-token': user?.token || ''
+      })
+    };
+    
+    return this.http.get<Order>(`${this.baseUrl}/${orderId}`, options);
   }
 
   updateOrderStatus(orderId: string, orderStatus: Order['orderStatus']): Observable<Order> {
