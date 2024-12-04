@@ -7,7 +7,8 @@ export class AuthInterceptor implements HttpInterceptor {
   private publicRoutes = [
     '/api/cards/search',
     '/api/cards/all',
-    '/api/test/all'
+    '/api/test/all',
+    '/api/orders'
   ];
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
