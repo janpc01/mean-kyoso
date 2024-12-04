@@ -48,6 +48,12 @@ export interface Order {
 })
 export class OrderService {
   private baseUrl = `${environment.apiUrl}/orders`;
+  private httpOptions = {
+    headers: new HttpHeaders({ 
+      'Content-Type': 'application/json'
+    }),
+    withCredentials: true
+  };
 
   constructor(
     private http: HttpClient,
@@ -77,14 +83,14 @@ export class OrderService {
   }
 
   getOrderById(orderId: string): Observable<Order> {
-    const headers = this.getHeaders();
     console.log('Getting order with ID:', orderId);
-    console.log('Request headers:', headers.keys().map(key => `${key}: ${headers.get(key)}`));
+    const options = {
+      ...this.httpOptions,
+      headers: this.getHeaders()
+    };
+    console.log('Request options:', options);
     
-    return this.http.get<Order>(`${this.baseUrl}/${orderId}`, {
-      headers,
-      withCredentials: true
-    }).pipe(
+    return this.http.get<Order>(`${this.baseUrl}/${orderId}`, options).pipe(
       tap({
         next: (response) => console.log('Order service received response:', response),
         error: (error) => console.error('Order service error:', {
