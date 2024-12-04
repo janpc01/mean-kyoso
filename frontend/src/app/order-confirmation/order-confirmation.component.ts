@@ -6,63 +6,43 @@ import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-order-confirmation',
-  templateUrl: './order-confirmation.component.html',
-  styleUrls: ['./order-confirmation.component.css']
+  templateUrl: './order-confirmation.component.html'
 })
 export class OrderConfirmationComponent implements OnInit {
   orderId: string | null = null;
   orderDetails: any = null;
-  private subscription: any;
-  private loaded = false;
+  paymentIntentId: string | null = null;
 
   constructor(
     private route: ActivatedRoute,
-    private router: Router,
     private orderService: OrderService,
-    private cartService: CartService
+    private router: Router
   ) {}
 
-  ngOnInit() {
-    if (!this.loaded) {
-      this.subscription = this.route.queryParams.subscribe(async params => {
-        const paymentIntentId = params['payment_intent'];
-        const orderId = params['orderId'];
+  ngOnInit(): void {
+    // First check for orderId
+    this.route.queryParams.subscribe(params => {
+      this.orderId = params['orderId'];
+      this.paymentIntentId = params['payment_intent'];
 
-        if (orderId && !this.loaded) {
-          this.orderId = orderId;
-          this.loadOrderDetails();
-          this.loaded = true;
-        } else if (paymentIntentId && !this.loaded) {
-          try {
-            const order = await firstValueFrom(this.orderService.createOrder(
-              this.cartService.getCartItems(),
-              JSON.parse(localStorage.getItem('shippingInfo') || '{}'),
-              this.cartService.getTotal(),
-              { paymentIntentId }
-            ));
-            
-            if (order) {
-              this.orderId = order._id || null;
-              this.loadOrderDetails();
-              this.loaded = true;
-              this.cartService.clearCart();
-            }
-          } catch (error) {
+      if (this.orderId) {
+        this.loadOrderDetails();
+      } else if (this.paymentIntentId) {
+        // If we have a payment_intent but no orderId, we need to fetch the order by payment intent
+        this.orderService.getOrderByPaymentIntent(this.paymentIntentId).subscribe({
+          next: (order) => {
+            this.orderId = order._id;
+            this.loadOrderDetails();
+          },
+          error: (error) => {
+            console.error('Error fetching order by payment intent:', error);
           }
-        }
-      });
-    }
-  }
-
-  ngOnDestroy() {
-    if (this.subscription) {
-      this.subscription.unsubscribe();
-    }
+        });
+      }
+    });
   }
 
   private loadOrderDetails(): void {
-    console.log('Starting loadOrderDetails with orderId:', this.orderId);
-    
     if (this.orderId) {
       console.log('Attempting to fetch order details...');
       this.orderService.getOrderById(this.orderId).subscribe({
@@ -103,8 +83,6 @@ export class OrderConfirmationComponent implements OnInit {
           }
         }
       });
-    } else {
-      console.error('No orderId provided to loadOrderDetails');
     }
   }
 }

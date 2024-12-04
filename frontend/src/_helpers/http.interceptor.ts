@@ -8,20 +8,25 @@ export class AuthInterceptor implements HttpInterceptor {
     '/api/cards/search',
     '/api/cards/all',
     '/api/test/all',
-    '/api/orders/create',
-    '/api/orders/[^/]+$'  // Matches single order GET requests
+    '/api/orders',
+    '/api/payment'  // Add payment routes as public too
   ];
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     console.log('Intercepting request:', req.url);
-    console.log('Current publicRoutes:', this.publicRoutes);
     
-    if (this.publicRoutes.some(route => req.url.includes(route))) {
-      console.log('Skipping credentials for public route');
+    // Check if it's a public route
+    const isPublicRoute = this.publicRoutes.some(route => 
+      req.url.toLowerCase().includes(route.toLowerCase())
+    );
+    
+    if (isPublicRoute) {
+      console.log('Public route detected:', req.url);
+      // For public routes, don't add any credentials
       return next.handle(req);
     }
 
-    console.log('Adding credentials to request');
+    console.log('Private route detected:', req.url);
     const clonedRequest = req.clone({
       withCredentials: true
     });

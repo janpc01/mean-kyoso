@@ -98,4 +98,17 @@ export class OrderService {
       this.authHttpOptions
     );
   }
+
+  getOrderByPaymentIntent(paymentIntentId: string): Observable<Order> {
+    console.log('Getting order by payment intent:', paymentIntentId);
+    return this.http.get<Order>(`${this.baseUrl}/payment/${paymentIntentId}`, this.httpOptions).pipe(
+      tap({
+        next: (response) => console.log('Order service received response:', response),
+        error: (error) => {
+          console.error('Order service error:', error);
+          throw error;
+        }
+      })
+    );
+  }
 }
