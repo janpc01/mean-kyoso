@@ -15,7 +15,7 @@ const Role = db.role;
 mongoose.connect(process.env.CUSTOMCONNSTR_COSMOSDB_CONNECTION_STRING, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    dbName: "kyoso"
+    dbName: "kyoso_db"
 })
 .then(() => {
     console.log("Successfully connected to Azure Cosmos DB.");
