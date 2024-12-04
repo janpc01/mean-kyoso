@@ -76,10 +76,9 @@ export class OrderService {
   }
 
   getOrderById(orderId: string): Observable<Order> {
+    const headers = this.getHeaders();
     return this.http.get<Order>(`${this.baseUrl}/${orderId}`, {
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json'
-      }),
+      headers,
       withCredentials: true
     });
   }

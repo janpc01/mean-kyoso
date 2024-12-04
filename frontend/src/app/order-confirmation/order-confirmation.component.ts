@@ -68,6 +68,11 @@ export class OrderConfirmationComponent implements OnInit {
         },
         error: (error) => {
           console.error('Error loading order details:', error);
+          if (error.status === 401) {
+            this.router.navigate(['/login']);
+          } else {
+            this.orderDetails = null;
+          }
         }
       });
     }
