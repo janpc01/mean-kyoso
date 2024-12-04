@@ -76,7 +76,12 @@ export class OrderService {
   }
 
   getOrderById(orderId: string): Observable<Order> {
-    return this.http.get<Order>(`${this.baseUrl}/${orderId}`);
+    return this.http.get<Order>(`${this.baseUrl}/${orderId}`, {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json'
+      }),
+      withCredentials: true
+    });
   }
 
   updateOrderStatus(orderId: string, orderStatus: Order['orderStatus']): Observable<Order> {
