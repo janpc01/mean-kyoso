@@ -1,31 +1,31 @@
 const express = require('express');
 const cors = require('cors');
 const cookieSession = require('cookie-session');
-const dbConfig = require('./app/config/db.config');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 
 const app = express();
-
 const db = require('./app/models');
 const Role = db.role;
 
 // Connect to MongoDB
-mongoose.connect(process.env.CUSTOMCONNSTR_COSMOSDB_CONNECTION_STRING, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    dbName: "kyoso_db"
-})
-.then(() => {
-    console.log("Successfully connected to Azure Cosmos DB.");
-    initial();
-})
-.catch((err) => {
-    console.error("Connection error", err);
-    process.exit();
-});
+mongoose
+    .connect(process.env.CUSTOMCONNSTR_COSMOSDB_CONNECTION_STRING, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+        dbName: "kyoso_db"
+    })
+    .then(() => {
+        console.log("Successfully connected to Azure Cosmos DB.");
+        initial();
+    })
+    .catch((err) => {
+        console.error("Connection error", err);
+        process.exit();
+    });
 
+// Centralized CORS Configuration
 const corsOptions = {
     origin: (origin, callback) => {
         const allowedOrigins = [
@@ -41,36 +41,43 @@ const corsOptions = {
     },
     credentials: true,
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'X-Requested-With', 'Accept', 'Access-Control-Allow-Headers'],
-    exposedHeaders: ['Set-Cookie'],
-    preflightContinue: false,
-    optionsSuccessStatus: 204
+    allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'X-Requested-With', 'Accept'],
+    exposedHeaders: ['Set-Cookie']
 };
 
-// Apply CORS middleware
+// Apply CORS middleware globally
 app.use(cors(corsOptions));
 
-// Handle preflight requests
-app.options('*', cors(corsOptions));
+// Preflight Handling
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', req.headers.origin || '');
+    res.header('Access-Control-Allow-Credentials', 'true');
+    res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Origin, X-Requested-With, Accept');
+    if (req.method === 'OPTIONS') {
+        return res.sendStatus(204); // Terminate preflight requests
+    }
+    next();
+});
 
 // Parse requests
 app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
 app.use(cookieParser());
 
-// Session configuration
+// Session Configuration
 app.use(
     cookieSession({
         name: "jwt",
         keys: [process.env.COOKIE_SECRET || "template-cookie-secret"],
         httpOnly: true,
-        secure: true,  // for HTTPS
-        sameSite: 'none',  // important for cross-site cookies
+        secure: true, // for HTTPS
+        sameSite: 'none', // important for cross-site cookies
         maxAge: 24 * 60 * 60 * 1000 // 24 hours
     })
 );
 
-// Simple route
+// Simple Route
 app.get("/", (req, res) => {
     res.json({ message: "Welcome to the application." });
 });
@@ -83,8 +90,8 @@ require('./app/routes/order.routes')(app);
 require('./app/routes/payment.routes')(app);
 require('./app/routes/email.routes')(app);
 
-// Set port, listen for requests
-const PORT = process.env.PORT;
+// Set Port and Listen
+const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}.`);
 });
@@ -93,7 +100,6 @@ app.listen(PORT, () => {
 async function initial() {
     try {
         const count = await Role.estimatedDocumentCount();
-
         if (count === 0) {
             await new Role({ name: "user" }).save();
             console.log("added 'user' to roles collection");
