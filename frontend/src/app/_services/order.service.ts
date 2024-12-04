@@ -50,7 +50,7 @@ export class OrderService {
   private baseUrl = `${environment.apiUrl}/orders`;
   private httpOptions = {
     headers: new HttpHeaders({ 
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     }),
     withCredentials: true
   };
@@ -60,14 +60,6 @@ export class OrderService {
     private storageService: StorageService,
     private authService: AuthService
   ) {}
-
-  private getHeaders(): HttpHeaders {
-    const user = this.storageService.getUser();
-    return new HttpHeaders({
-      'Content-Type': 'application/json',
-      ...(user?.token ? { 'Authorization': `Bearer ${user.token}` } : {})
-    });
-  }
 
   createOrder(orderItems: any[], shippingAddress: any, totalAmount: number, paymentDetails: any): Observable<Order> {
     return this.http.post<Order>(this.baseUrl, {
@@ -84,11 +76,15 @@ export class OrderService {
 
   getOrderById(orderId: string): Observable<Order> {
     console.log('Getting order with ID:', orderId);
+    const user = this.storageService.getUser();
+    
     const options = {
       ...this.httpOptions,
-      headers: this.getHeaders()
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        ...(user?.token ? { 'Authorization': `Bearer ${user.token}` } : {})
+      })
     };
-    console.log('Request options:', options);
     
     return this.http.get<Order>(`${this.baseUrl}/${orderId}`, options).pipe(
       tap({
