@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { OrderService } from '../_services/order.service';
 import { CartService } from '../_services/cart.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-order-confirmation',
@@ -33,12 +34,12 @@ export class OrderConfirmationComponent implements OnInit {
           this.loaded = true;
         } else if (paymentIntentId && !this.loaded) {
           try {
-            const order = await this.orderService.createOrder(
+            const order = await firstValueFrom(this.orderService.createOrder(
               this.cartService.getCartItems(),
               JSON.parse(localStorage.getItem('shippingInfo') || '{}'),
               this.cartService.getTotal(),
               { paymentIntentId }
-            ).toPromise();
+            ));
             
             if (order) {
               this.orderId = order._id || null;
@@ -66,6 +67,7 @@ export class OrderConfirmationComponent implements OnInit {
           this.orderDetails = order;
         },
         error: (error) => {
+          console.error('Error loading order details:', error);
         }
       });
     }
