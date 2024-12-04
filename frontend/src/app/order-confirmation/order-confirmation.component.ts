@@ -6,12 +6,12 @@ import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-order-confirmation',
-  templateUrl: './order-confirmation.component.html'
+  templateUrl: './order-confirmation.component.html',
+  styleUrls: ['./order-confirmation.component.css']
 })
 export class OrderConfirmationComponent implements OnInit {
   orderId: string | null = null;
   orderDetails: any = null;
-  paymentIntentId: string | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -22,26 +22,10 @@ export class OrderConfirmationComponent implements OnInit {
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
       this.orderId = params['orderId'] || null;
-      this.paymentIntentId = params['payment_intent'] || null;
-
       if (this.orderId) {
         this.loadOrderDetails();
-      } else if (this.paymentIntentId) {
-        this.orderService.getOrderByPaymentIntent(this.paymentIntentId).subscribe({
-          next: (order) => {
-            if (order && order._id) {
-              this.orderId = order._id;
-              this.loadOrderDetails();
-            } else {
-              console.error('Order response missing _id:', order);
-            }
-          },
-          error: (error) => {
-            console.error('Error fetching order by payment intent:', error);
-          }
-        });
       } else {
-        console.error('No orderId or payment_intent found in URL');
+        console.error('No orderId found in URL');
       }
     });
   }

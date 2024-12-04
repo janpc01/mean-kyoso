@@ -52,18 +52,12 @@ export class OrderService {
     headers: new HttpHeaders({ 'Content-Type': 'application/json' })
   };
 
-  private authHttpOptions = {
-    headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
-    withCredentials: true
-  };
-
   constructor(
     private http: HttpClient,
     private storageService: StorageService,
     private authService: AuthService
   ) {}
 
-  // Public endpoints - no auth needed
   createOrder(orderItems: any[], shippingAddress: any, totalAmount: number, paymentDetails: any): Observable<Order> {
     return this.http.post<Order>(this.baseUrl, {
       items: orderItems,
@@ -88,27 +82,22 @@ export class OrderService {
 
   // Protected endpoints - auth required
   getUserOrders(): Observable<Order[]> {
-    return this.http.get<Order[]>(`${this.baseUrl}/user`, this.authHttpOptions);
+    const authOptions = {
+      ...this.httpOptions,
+      withCredentials: true
+    };
+    return this.http.get<Order[]>(`${this.baseUrl}/user`, authOptions);
   }
 
   updateOrderStatus(orderId: string, orderStatus: Order['orderStatus']): Observable<Order> {
+    const authOptions = {
+      ...this.httpOptions,
+      withCredentials: true
+    };
     return this.http.patch<Order>(
       `${this.baseUrl}/${orderId}/status`,
       { status: orderStatus },
-      this.authHttpOptions
-    );
-  }
-
-  getOrderByPaymentIntent(paymentIntentId: string): Observable<Order> {
-    console.log('Getting order by payment intent:', paymentIntentId);
-    return this.http.get<Order>(`${this.baseUrl}/payment/${paymentIntentId}`, this.httpOptions).pipe(
-      tap({
-        next: (response) => console.log('Order service received response:', response),
-        error: (error) => {
-          console.error('Order service error:', error);
-          throw error;
-        }
-      })
+      authOptions
     );
   }
 }
