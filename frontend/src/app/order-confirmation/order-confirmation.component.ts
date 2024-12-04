@@ -61,9 +61,13 @@ export class OrderConfirmationComponent implements OnInit {
   }
 
   private loadOrderDetails(): void {
+    console.log('Starting loadOrderDetails with orderId:', this.orderId);
+    
     if (this.orderId) {
+      console.log('Attempting to fetch order details...');
       this.orderService.getOrderById(this.orderId).subscribe({
         next: (order) => {
+          console.log('Successfully received order details:', order);
           const formattedOrder = {
             ...order,
             items: order.items.map(item => ({
@@ -76,17 +80,31 @@ export class OrderConfirmationComponent implements OnInit {
               }
             }))
           };
+          console.log('Formatted order details:', formattedOrder);
           this.orderDetails = formattedOrder;
         },
         error: (error) => {
-          console.error('Error loading order details:', error);
+          console.error('Error loading order details. Full error:', error);
+          console.error('Error status:', error.status);
+          console.error('Error message:', error.message);
+          console.error('Error headers:', error.headers);
+          console.error('Error URL:', error.url);
+          
           if (error.status === 401) {
+            console.log('Unauthorized access, redirecting to login...');
             this.router.navigate(['/login']);
+          } else if (error.status === 0) {
+            console.error('CORS or network error detected');
+            // Handle CORS error specifically
+            this.orderDetails = null;
           } else {
+            console.error('Other error occurred:', error.statusText);
             this.orderDetails = null;
           }
         }
       });
+    } else {
+      console.error('No orderId provided to loadOrderDetails');
     }
   }
 }

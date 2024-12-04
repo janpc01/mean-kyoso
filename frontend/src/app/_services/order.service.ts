@@ -5,6 +5,7 @@ import { StorageService } from './storage.service';
 import { environment } from '../../environments/environment';
 import { AuthService } from './auth.service';
 import { switchMap } from 'rxjs/operators';
+import { tap } from 'rxjs/operators';
 
 export interface ShippingAddress {
   fullName: string;
@@ -77,10 +78,23 @@ export class OrderService {
 
   getOrderById(orderId: string): Observable<Order> {
     const headers = this.getHeaders();
+    console.log('Getting order with ID:', orderId);
+    console.log('Request headers:', headers.keys().map(key => `${key}: ${headers.get(key)}`));
+    
     return this.http.get<Order>(`${this.baseUrl}/${orderId}`, {
       headers,
       withCredentials: true
-    });
+    }).pipe(
+      tap({
+        next: (response) => console.log('Order service received response:', response),
+        error: (error) => console.error('Order service error:', {
+          status: error.status,
+          message: error.message,
+          headers: error.headers,
+          url: error.url
+        })
+      })
+    );
   }
 
   updateOrderStatus(orderId: string, orderStatus: Order['orderStatus']): Observable<Order> {
