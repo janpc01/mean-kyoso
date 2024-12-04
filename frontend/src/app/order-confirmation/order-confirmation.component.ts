@@ -20,29 +20,35 @@ export class OrderConfirmationComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // First check for orderId
     this.route.queryParams.subscribe(params => {
-      this.orderId = params['orderId'];
-      this.paymentIntentId = params['payment_intent'];
+      this.orderId = params['orderId'] || null;
+      this.paymentIntentId = params['payment_intent'] || null;
 
       if (this.orderId) {
         this.loadOrderDetails();
       } else if (this.paymentIntentId) {
-        // If we have a payment_intent but no orderId, we need to fetch the order by payment intent
         this.orderService.getOrderByPaymentIntent(this.paymentIntentId).subscribe({
           next: (order) => {
-            this.orderId = order._id;
-            this.loadOrderDetails();
+            if (order && order._id) {
+              this.orderId = order._id;
+              this.loadOrderDetails();
+            } else {
+              console.error('Order response missing _id:', order);
+            }
           },
           error: (error) => {
             console.error('Error fetching order by payment intent:', error);
           }
         });
+      } else {
+        console.error('No orderId or payment_intent found in URL');
       }
     });
   }
 
   private loadOrderDetails(): void {
+    console.log('Starting loadOrderDetails with orderId:', this.orderId);
+    
     if (this.orderId) {
       console.log('Attempting to fetch order details...');
       this.orderService.getOrderById(this.orderId).subscribe({
@@ -64,23 +70,11 @@ export class OrderConfirmationComponent implements OnInit {
           this.orderDetails = formattedOrder;
         },
         error: (error) => {
-          console.error('Error loading order details. Full error:', error);
-          console.error('Error status:', error.status);
-          console.error('Error message:', error.message);
-          console.error('Error headers:', error.headers);
-          console.error('Error URL:', error.url);
-          
+          console.error('Error loading order details:', error);
           if (error.status === 401) {
-            console.log('Unauthorized access, redirecting to login...');
             this.router.navigate(['/login']);
-          } else if (error.status === 0) {
-            console.error('CORS or network error detected');
-            // Handle CORS error specifically
-            this.orderDetails = null;
-          } else {
-            console.error('Other error occurred:', error.statusText);
-            this.orderDetails = null;
           }
+          this.orderDetails = null;
         }
       });
     }
