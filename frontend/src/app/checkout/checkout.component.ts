@@ -38,7 +38,21 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    
+    // Check if we're returning from Stripe
+    this.route.queryParams.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(params => {
+      const paymentIntent = params['payment_intent'];
+      const redirectStatus = params['redirect_status'];
+      
+      if (paymentIntent && redirectStatus === 'succeeded') {
+        console.log('Payment successful, creating order...');
+        this.handleStripeReturn(paymentIntent);
+      }
+    });
+
+    // Initialize Stripe elements
+    this.initializeStripeElements();
   }
 
   ngOnDestroy() {
@@ -219,5 +233,86 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     }
   }
 
-  
+  private async handlePayment() {
+    try {
+      const stripe = await this.paymentService.getStripe();
+      const email = this.checkoutForm.get('email')?.value;
+      const amount = this.cartService.getTotal() * 100;
+
+      this.paymentService.createPaymentIntent(amount, email).subscribe({
+        next: async (response) => {
+          const { error } = await stripe.confirmPayment({
+            elements: this.elements,
+            confirmParams: {
+              return_url: 'https://kyosocards.com/checkout',  // Changed from /order-confirmation
+            },
+          });
+
+          if (error) {
+            console.error('Payment error:', error);
+            this.isProcessing = false;
+          }
+        },
+        error: (error) => {
+          console.error('Create payment intent error:', error);
+          this.isProcessing = false;
+        }
+      });
+    } catch (error) {
+      console.error('Handle payment error:', error);
+      this.isProcessing = false;
+    }
+  }
+
+  private handleStripeReturn(paymentIntentId: string) {
+    const shippingInfo = this.checkoutForm.get('shipping')?.value;
+    
+    this.cartService.getCart()
+      .pipe(
+        take(1),
+        takeUntil(this.destroy$)
+      )
+      .subscribe({
+        next: (cartItems) => {
+          const orderItems = cartItems.map(item => ({
+            cardId: item.cardId,
+            quantity: item.quantity
+          }));
+
+          const shippingAddress = {
+            fullName: shippingInfo.fullName,
+            addressLine1: shippingInfo.addressLine1,
+            addressLine2: shippingInfo.addressLine2,
+            city: shippingInfo.city,
+            state: shippingInfo.province,
+            postalCode: shippingInfo.postalCode,
+            country: shippingInfo.country,
+            phone: shippingInfo.phone
+          };
+
+          const totalAmount = this.cartService.getTotal();
+
+          console.log('Creating order with payment intent:', paymentIntentId);
+          this.orderService.createOrder(
+            orderItems,
+            shippingAddress,
+            totalAmount,
+            { paymentIntentId }
+          ).subscribe({
+            next: (order) => {
+              console.log('Order created successfully:', order);
+              this.cartService.clearCart();
+              this.router.navigate(['/order-confirmation'], { 
+                queryParams: { orderId: order._id }
+              });
+            },
+            error: (error) => {
+              console.error('Error creating order:', error);
+              alert('There was an error processing your order. Please try again.');
+              this.isProcessing = false;
+            }
+          });
+        }
+      });
+  }
 }
