@@ -25,6 +25,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   private elements: StripeElements | null = null;
   isProcessing = false;
   showCheckoutOptions: boolean = false;
+  orderCompleted = false;
 
   constructor(
     private fb: FormBuilder,
@@ -49,6 +50,13 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       if (paymentIntent && redirectStatus === 'succeeded') {
         console.log('Payment successful, creating order...');
         this.handleStripeReturn(paymentIntent);
+      } else {
+        // Save cart items when first loading checkout
+        const cartItems = this.cartService.getCartItems();
+        if (cartItems.length > 0) {
+          localStorage.setItem('cartItems', JSON.stringify(cartItems));
+          console.log('Saved cart items:', cartItems);
+        }
       }
     });
 
@@ -59,6 +67,12 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
+    
+    // Clean up localStorage if navigating away without completing order
+    if (!this.orderCompleted) {
+      localStorage.removeItem('shippingInfo');
+      localStorage.removeItem('cartItems');
+    }
   }
 
   private initForm() {
@@ -183,6 +197,13 @@ export class CheckoutComponent implements OnInit, OnDestroy {
 
           const totalAmount = this.cartService.getTotal();
 
+          console.log('Creating order with:', {
+            items: orderItems,
+            shipping: shippingAddress,
+            total: totalAmount,
+            payment: paymentIntentId
+          });
+
           this.orderService.createOrder(
             orderItems,
             shippingAddress,
@@ -190,13 +211,18 @@ export class CheckoutComponent implements OnInit, OnDestroy {
             { paymentIntentId }
           ).subscribe({
             next: (order) => {
+              console.log('Order created successfully:', order);
               this.cartService.clearCart();
+              localStorage.removeItem('shippingInfo');
+              localStorage.removeItem('cartItems');
+              this.orderCompleted = true;
               this.router.navigate(['/order-confirmation'], { 
                 queryParams: { orderId: order._id },
-                state: { order }
+                state: { order: order }
               });
             },
             error: (error) => {
+              console.error('Error creating order:', error);
               alert('There was an error processing your order. Please try again.');
               this.isProcessing = false;
             }
@@ -237,54 +263,46 @@ export class CheckoutComponent implements OnInit, OnDestroy {
 
   private async handlePayment() {
     try {
-      const stripe = await this.paymentService.getStripe();
-      if (!stripe) {
-        throw new Error('Stripe failed to initialize');
-      }
-
-      const email = this.checkoutForm.get('email')?.value;
-      const amount = this.cartService.getTotal() * 100;
-
-      this.paymentService.createPaymentIntent(amount, email).subscribe({
-        next: async (response) => {
-          if (!this.elements) {
-            throw new Error('Stripe Elements not initialized');
-          }
-
-          console.log('Confirming payment with return URL to checkout');
-          const { error } = await stripe.confirmPayment({
-            elements: this.elements,
-            confirmParams: {
-              return_url: 'https://kyosocards.com/checkout',
-            },
-          });
-
-          if (error) {
-            console.error('Payment error:', error);
-            this.isProcessing = false;
-          }
+      // Create pending order first
+      const order = await firstValueFrom(this.createPendingOrder());
+      
+      const { error } = await this.stripe.confirmPayment({
+        elements: this.elements,
+        confirmParams: {
+          return_url: `${window.location.origin}/checkout?orderId=${order._id}`,
         },
-        error: (error) => {
-          console.error('Create payment intent error:', error);
-          this.isProcessing = false;
-        }
       });
+      
+      if (error) {
+        // Handle error, maybe delete pending order
+        await this.orderService.deleteOrder(order._id).toPromise();
+      }
     } catch (error) {
-      console.error('Handle payment error:', error);
-      this.isProcessing = false;
+      console.error('Payment error:', error);
     }
   }
 
-  private handleStripeReturn(paymentIntentId: string) {
+  private async handleStripeReturn(paymentIntentId: string) {
     // Load shipping info from localStorage
     const savedShippingInfo = localStorage.getItem('shippingInfo');
-    if (!savedShippingInfo) {
-      console.error('No shipping info found in localStorage');
+    const savedCartItems = localStorage.getItem('cartItems');
+    
+    if (!savedShippingInfo || !savedCartItems) {
+      console.error('Missing saved data:', { 
+        shippingInfo: !!savedShippingInfo, 
+        cartItems: !!savedCartItems 
+      });
       return;
     }
 
     const shippingInfo = JSON.parse(savedShippingInfo);
+    const cartItems = JSON.parse(savedCartItems);
     
+    // Restore cart items if needed
+    if (this.cartService.getCartItems().length === 0) {
+      cartItems.forEach((item: any) => this.cartService.addToCart(item));
+    }
+
     this.cartService.getCart()
       .pipe(
         take(1),
