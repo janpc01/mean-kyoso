@@ -276,7 +276,14 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   }
 
   private handleStripeReturn(paymentIntentId: string) {
-    const shippingInfo = this.checkoutForm.get('shipping')?.value;
+    // Load shipping info from localStorage
+    const savedShippingInfo = localStorage.getItem('shippingInfo');
+    if (!savedShippingInfo) {
+      console.error('No shipping info found in localStorage');
+      return;
+    }
+
+    const shippingInfo = JSON.parse(savedShippingInfo);
     
     this.cartService.getCart()
       .pipe(
@@ -319,6 +326,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
             next: (order) => {
               console.log('Order created successfully, navigating with:', order);
               this.cartService.clearCart();
+              localStorage.removeItem('shippingInfo'); // Clean up
               this.router.navigate(['/order-confirmation'], { 
                 queryParams: { orderId: order._id },
                 state: { order }
