@@ -133,26 +133,3 @@ exports.updateOrderStatus = async (req, res) => {
         res.status(500).json({ message: "Error updating order status", error: err.message });
     }
 };
-
-exports.findByPaymentIntent = async (req, res) => {
-    try {
-        const paymentIntentId = req.params.paymentIntentId;
-        const order = await Order.findOne({ "paymentDetails.paymentIntentId": paymentIntentId })
-            .populate({
-                path: 'items',
-                populate: {
-                    path: 'card',
-                    model: 'Card',
-                    select: 'name image price beltRank achievement clubName'
-                }
-            });
-
-        if (!order) {
-            return res.status(404).json({ message: "Order not found" });
-        }
-
-        res.status(200).json(order);
-    } catch (err) {
-        res.status(500).json({ message: "Error fetching order", error: err.message });
-    }
-};
