@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { OrderService } from '../_services/order.service';
+import { OrderService, Order } from '../_services/order.service';
 import { CartService } from '../_services/cart.service';
 import { firstValueFrom } from 'rxjs';
 import { Location } from '@angular/common';

@@ -16,10 +16,11 @@ import { AuthService } from '../_services/auth.service';
   templateUrl: './checkout.component.html'
 })
 export class CheckoutComponent implements OnInit {
-  checkoutForm: FormGroup;
+  checkoutForm!: FormGroup;
   isProcessing = false;
   elements: StripeElements | null = null;
   stripe: Stripe | null = null;
+  showPaymentElement = false;
 
   constructor(
     private fb: FormBuilder,
@@ -33,14 +34,72 @@ export class CheckoutComponent implements OnInit {
   }
 
   ngOnInit() {
-    // Handle Stripe redirect
     this.route.queryParams.subscribe(params => {
       if (params['payment_intent'] && params['redirect_status'] === 'succeeded') {
         this.handlePaymentSuccess(params['payment_intent']);
       }
     });
-
     this.initializeStripe();
+  }
+
+  async handleSubmit(event: Event) {
+    event.preventDefault();
+    if (!this.stripe || !this.elements) {
+      console.error('Stripe not initialized');
+      return;
+    }
+
+    this.isProcessing = true;
+    const email = this.checkoutForm.get('shipping.email')?.value;
+    const amount = this.cartService.getTotal();
+
+    try {
+      const { clientSecret } = await firstValueFrom(
+        this.paymentService.createPaymentIntent(amount, email)
+      );
+
+      const { error } = await this.stripe.confirmPayment({
+        elements: this.elements,
+        confirmParams: {
+          return_url: `${window.location.origin}/checkout`,
+          receipt_email: email,
+        },
+      });
+
+      if (error) {
+        console.error('Payment error:', error);
+        alert(error.message);
+      }
+    } catch (e) {
+      console.error('Payment error:', e);
+      alert('An error occurred during payment. Please try again.');
+    } finally {
+      this.isProcessing = false;
+    }
+  }
+
+  async proceedToPayment() {
+    if (!this.checkoutForm.get('shipping')?.valid) {
+      return;
+    }
+    this.showPaymentElement = true;
+    await this.initializeStripe();
+  }
+
+  private initForm() {
+    this.checkoutForm = this.fb.group({
+      shipping: this.fb.group({
+        fullName: ['', Validators.required],
+        phone: ['', Validators.required],
+        email: ['', [Validators.required, Validators.email]],
+        addressLine1: ['', Validators.required],
+        addressLine2: [''],
+        city: ['', Validators.required],
+        state: [''],
+        postalCode: ['', Validators.required],
+        country: ['', Validators.required]
+      })
+    });
   }
 
   private async initializeStripe() {
@@ -69,22 +128,6 @@ export class CheckoutComponent implements OnInit {
         console.error('Error creating order:', error);
         alert('There was an error processing your order.');
       }
-    });
-  }
-
-  private initForm() {
-    this.checkoutForm = this.fb.group({
-      shipping: this.fb.group({
-        fullName: ['', Validators.required],
-        phone: ['', Validators.required],
-        email: ['', [Validators.required, Validators.email]],
-        addressLine1: ['', Validators.required],
-        addressLine2: [''],
-        city: ['', Validators.required],
-        state: [''],
-        postalCode: ['', Validators.required],
-        country: ['', Validators.required]
-      })
     });
   }
 }
