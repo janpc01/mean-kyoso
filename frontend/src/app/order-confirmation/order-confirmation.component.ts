@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { OrderService } from '../_services/order.service';
 import { CartService } from '../_services/cart.service';
 import { firstValueFrom } from 'rxjs';
+import { Location } from '@angular/common';
 
 @Component({
   selector: 'app-order-confirmation',
@@ -15,30 +16,46 @@ export class OrderConfirmationComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private orderService: OrderService,
-    private router: Router
-  ) {}
+    private location: Location
+  ) {
+    // Get the navigation state
+    const navigation = this.router.getCurrentNavigation();
+    const state = navigation?.extras?.state as { order: any };
+    
+    if (state?.order) {
+      this.orderDetails = state.order;
+      this.orderId = state.order._id;
+    }
+  }
 
   ngOnInit(): void {
-    this.route.queryParams.subscribe(params => {
-      this.orderId = params['orderId'];
-      
-      if (!this.orderId) {
-        console.error('No orderId found in URL, redirecting to home');
-        this.router.navigate(['/']);
-        return;
-      }
-
-      this.loadOrderDetails();
-    });
+    // If no state, try query params
+    if (!this.orderDetails) {
+      this.route.queryParams.subscribe(params => {
+        this.orderId = params['orderId'];
+        
+        if (!this.orderId) {
+          // Only redirect if user came here directly
+          if (!document.referrer.includes('/checkout')) {
+            console.error('No order details found, redirecting to home');
+            this.router.navigate(['/']);
+            return;
+          }
+        } else {
+          this.loadOrderDetails();
+        }
+      });
+    }
   }
 
   private loadOrderDetails(): void {
-    console.log('Loading order details for ID:', this.orderId);
+    if (!this.orderId) return;
     
-    this.orderService.getOrderById(this.orderId!).subscribe({
+    console.log('Loading order details for ID:', this.orderId);
+    this.orderService.getOrderById(this.orderId).subscribe({
       next: (order) => {
-        console.log('Order details received:', order);
         const formattedOrder = {
           ...order,
           items: order.items.map(item => ({
@@ -56,7 +73,6 @@ export class OrderConfirmationComponent implements OnInit {
       error: (error) => {
         console.error('Error loading order details:', error);
         if (error.status === 404) {
-          console.error('Order not found');
           this.router.navigate(['/']);
         }
         this.orderDetails = null;

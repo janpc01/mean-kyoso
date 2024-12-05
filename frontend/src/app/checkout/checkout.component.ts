@@ -192,7 +192,8 @@ export class CheckoutComponent implements OnInit, OnDestroy {
             next: (order) => {
               this.cartService.clearCart();
               this.router.navigate(['/order-confirmation'], { 
-                queryParams: { orderId: order._id }
+                queryParams: { orderId: order._id },
+                state: { order }
               });
             },
             error: (error) => {
@@ -312,7 +313,8 @@ export class CheckoutComponent implements OnInit, OnDestroy {
               console.log('Order created successfully:', order);
               this.cartService.clearCart();
               this.router.navigate(['/order-confirmation'], { 
-                queryParams: { orderId: order._id }
+                queryParams: { orderId: order._id },
+                state: { order }
               });
             },
             error: (error) => {
