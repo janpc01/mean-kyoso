@@ -302,7 +302,13 @@ export class CheckoutComponent implements OnInit, OnDestroy {
 
           const totalAmount = this.cartService.getTotal();
 
-          console.log('Creating order with payment intent:', paymentIntentId);
+          console.log('Creating order with:', {
+            items: orderItems,
+            shipping: shippingAddress,
+            total: totalAmount,
+            payment: paymentIntentId
+          });
+
           this.orderService.createOrder(
             orderItems,
             shippingAddress,
@@ -310,7 +316,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
             { paymentIntentId }
           ).subscribe({
             next: (order) => {
-              console.log('Order created successfully:', order);
+              console.log('Order created successfully, navigating with:', order);
               this.cartService.clearCart();
               this.router.navigate(['/order-confirmation'], { 
                 queryParams: { orderId: order._id },

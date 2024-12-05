@@ -20,30 +20,41 @@ export class OrderConfirmationComponent implements OnInit {
     private orderService: OrderService,
     private location: Location
   ) {
-    // Get the navigation state
+    console.log('OrderConfirmation constructor called');
     const navigation = this.router.getCurrentNavigation();
     const state = navigation?.extras?.state as { order: any };
     
+    console.log('Navigation state:', state);
+    
     if (state?.order) {
+      console.log('Order found in state:', state.order);
       this.orderDetails = state.order;
       this.orderId = state.order._id;
+    } else {
+      console.log('No order in state');
     }
   }
 
   ngOnInit(): void {
-    // If no state, try query params
+    console.log('OrderConfirmation ngOnInit, current details:', {
+      orderId: this.orderId,
+      orderDetails: this.orderDetails
+    });
+
     if (!this.orderDetails) {
       this.route.queryParams.subscribe(params => {
+        console.log('Query params:', params);
         this.orderId = params['orderId'];
         
         if (!this.orderId) {
-          // Only redirect if user came here directly
+          console.log('No orderId in params, checking referrer:', document.referrer);
           if (!document.referrer.includes('/checkout')) {
             console.error('No order details found, redirecting to home');
             this.router.navigate(['/']);
             return;
           }
         } else {
+          console.log('Found orderId in params, loading details');
           this.loadOrderDetails();
         }
       });
@@ -51,11 +62,15 @@ export class OrderConfirmationComponent implements OnInit {
   }
 
   private loadOrderDetails(): void {
-    if (!this.orderId) return;
+    if (!this.orderId) {
+      console.error('Attempted to load details with no orderId');
+      return;
+    }
     
     console.log('Loading order details for ID:', this.orderId);
     this.orderService.getOrderById(this.orderId).subscribe({
       next: (order) => {
+        console.log('Received order details:', order);
         const formattedOrder = {
           ...order,
           items: order.items.map(item => ({
@@ -68,6 +83,7 @@ export class OrderConfirmationComponent implements OnInit {
             }
           }))
         };
+        console.log('Formatted order details:', formattedOrder);
         this.orderDetails = formattedOrder;
       },
       error: (error) => {
