@@ -1,11 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { StorageService } from './storage.service';
 import { environment } from '../../environments/environment';
-import { AuthService } from './auth.service';
-import { switchMap } from 'rxjs/operators';
-import { tap } from 'rxjs/operators';
 
 export interface ShippingAddress {
   fullName: string;
@@ -48,56 +44,22 @@ export interface Order {
 })
 export class OrderService {
   private baseUrl = `${environment.apiUrl}/orders`;
-  private httpOptions = {
-    headers: new HttpHeaders({ 'Content-Type': 'application/json' })
-  };
 
-  constructor(
-    private http: HttpClient,
-    private storageService: StorageService,
-    private authService: AuthService
-  ) {}
+  constructor(private http: HttpClient) {}
 
-  createOrder(orderItems: any[], shippingAddress: any, totalAmount: number, paymentDetails: any): Observable<Order> {
-    return this.http.post<Order>(this.baseUrl, {
-      items: orderItems,
-      shippingAddress,
-      totalAmount,
-      paymentDetails
-    }, this.httpOptions);
+  createOrder(orderData: any): Observable<Order> {
+    return this.http.post<Order>(`${this.baseUrl}`, orderData);
   }
 
   getOrderById(orderId: string): Observable<Order> {
-    console.log('Getting order with ID:', orderId);
-    return this.http.get<Order>(`${this.baseUrl}/${orderId}`, this.httpOptions).pipe(
-      tap({
-        next: (response) => console.log('Order service received response:', response),
-        error: (error) => {
-          console.error('Order service error:', error);
-          throw error;
-        }
-      })
-    );
+    return this.http.get<Order>(`${this.baseUrl}/${orderId}`);
   }
 
-  // Protected endpoints - auth required
-  getUserOrders(): Observable<Order[]> {
-    const authOptions = {
-      ...this.httpOptions,
-      withCredentials: true
-    };
-    return this.http.get<Order[]>(`${this.baseUrl}/user`, authOptions);
+  updateOrder(orderId: string, updateData: any): Observable<Order> {
+    return this.http.patch<Order>(`${this.baseUrl}/${orderId}`, updateData);
   }
 
-  updateOrderStatus(orderId: string, orderStatus: Order['orderStatus']): Observable<Order> {
-    const authOptions = {
-      ...this.httpOptions,
-      withCredentials: true
-    };
-    return this.http.patch<Order>(
-      `${this.baseUrl}/${orderId}/status`,
-      { status: orderStatus },
-      authOptions
-    );
+  deleteOrder(orderId: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/${orderId}`);
   }
 }
