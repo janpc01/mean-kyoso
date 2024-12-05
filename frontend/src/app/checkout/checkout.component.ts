@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { CartService } from '../_services/cart.service';
 import { OrderService } from '../_services/order.service';
 import { PaymentService } from '../_services/payment.service';
@@ -32,18 +32,19 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     private orderService: OrderService,
     public router: Router,
     private paymentService: PaymentService,
-    private authService: AuthService
+    private authService: AuthService,
+    private activatedRoute: ActivatedRoute
   ) {
     this.initForm();
   }
 
   ngOnInit() {
     // Check if we're returning from Stripe
-    this.route.queryParams.pipe(
+    this.activatedRoute.queryParams.pipe(
       takeUntil(this.destroy$)
-    ).subscribe(params => {
-      const paymentIntent = params['payment_intent'];
-      const redirectStatus = params['redirect_status'];
+    ).subscribe((params: { payment_intent?: string; redirect_status?: string }) => {
+      const paymentIntent = params.payment_intent;
+      const redirectStatus = params.redirect_status;
       
       if (paymentIntent && redirectStatus === 'succeeded') {
         console.log('Payment successful, creating order...');
@@ -52,7 +53,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     });
 
     // Initialize Stripe elements
-    this.initializeStripeElements();
+    this.initializeStripe();
   }
 
   ngOnDestroy() {
@@ -236,15 +237,23 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   private async handlePayment() {
     try {
       const stripe = await this.paymentService.getStripe();
+      if (!stripe) {
+        throw new Error('Stripe failed to initialize');
+      }
+
       const email = this.checkoutForm.get('email')?.value;
       const amount = this.cartService.getTotal() * 100;
 
       this.paymentService.createPaymentIntent(amount, email).subscribe({
         next: async (response) => {
+          if (!this.elements) {
+            throw new Error('Stripe Elements not initialized');
+          }
+
           const { error } = await stripe.confirmPayment({
             elements: this.elements,
             confirmParams: {
-              return_url: 'https://kyosocards.com/checkout',  // Changed from /order-confirmation
+              return_url: 'https://kyosocards.com/checkout',
             },
           });
 
