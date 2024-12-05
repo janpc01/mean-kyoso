@@ -4,7 +4,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { CartService } from '../_services/cart.service';
 import { OrderService } from '../_services/order.service';
 import { PaymentService } from '../_services/payment.service';
-import { Stripe, StripeElements } from '@stripe/stripe-js';
+import { Stripe, StripeElements, loadStripe } from '@stripe/stripe-js';
 
 @Component({
   selector: 'app-checkout',
@@ -13,7 +13,7 @@ import { Stripe, StripeElements } from '@stripe/stripe-js';
 export class CheckoutComponent implements OnInit {
   checkoutForm!: FormGroup;
   isProcessing = false;
-  elements: StripeElements | null = null;
+  elements: StripeElements | undefined;
   stripe: Stripe | null = null;
   showPaymentElement = false;
 
@@ -29,7 +29,6 @@ export class CheckoutComponent implements OnInit {
   }
 
   ngOnInit() {
-    // Handle redirect from Stripe
     this.route.queryParams.subscribe(params => {
       if (params['payment_intent'] && params['redirect_status'] === 'succeeded') {
         this.handlePaymentSuccess(params['payment_intent']);
@@ -61,24 +60,33 @@ export class CheckoutComponent implements OnInit {
       return;
     }
 
+    const { clientSecret } = await this.paymentService.createPaymentIntent(
+      this.cartService.getTotal(),
+      this.checkoutForm.get('shipping.email')?.value
+    ).toPromise();
+
+    this.elements = this.stripe.elements({
+      clientSecret,
+      appearance: { theme: 'stripe' }
+    });
+
+    const paymentElement = this.elements.create('payment');
+    paymentElement.mount('#payment-element');
     this.showPaymentElement = true;
   }
 
   async handleSubmit(event: Event) {
     event.preventDefault();
-    if (!this.stripe) return;
+    if (!this.stripe || !this.elements) return;
 
     this.isProcessing = true;
-    const amount = this.cartService.getTotal();
-    const email = this.checkoutForm.get('shipping.email')?.value;
 
     try {
-      const { clientSecret } = await this.paymentService.createPaymentIntent(amount, email).toPromise();
       const { error } = await this.stripe.confirmPayment({
         elements: this.elements,
         confirmParams: {
           return_url: `${window.location.origin}/checkout`,
-          receipt_email: email,
+          receipt_email: this.checkoutForm.get('shipping.email')?.value,
         }
       });
 
