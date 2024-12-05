@@ -251,6 +251,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
             throw new Error('Stripe Elements not initialized');
           }
 
+          console.log('Confirming payment with return URL to checkout');
           const { error } = await stripe.confirmPayment({
             elements: this.elements,
             confirmParams: {
