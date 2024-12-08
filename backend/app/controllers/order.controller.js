@@ -79,7 +79,18 @@ exports.getUserOrders = async (req, res) => {
 
 exports.getOrderById = async (req, res) => {
     try {
-        const order = await Order.findById(req.params.orderId)
+        const { orderId } = req.params;
+
+        // Validate if orderId is a valid MongoDB ObjectId
+        if (!mongoose.Types.ObjectId.isValid(orderId)) {
+            return res.status(400).json({ 
+                message: "Invalid order ID format", 
+                error: `Provided orderId: ${orderId} is not a valid ObjectId`
+            });
+        }
+
+        // Fetch the order with populated data
+        const order = await Order.findById(orderId)
             .populate({
                 path: 'items',
                 populate: {
@@ -89,13 +100,27 @@ exports.getOrderById = async (req, res) => {
                 }
             });
 
+        // Check if the order exists
         if (!order) {
-            return res.status(404).json({ message: "Order not found" });
+            return res.status(404).json({ 
+                message: "Order not found", 
+                error: `No order exists with the ID: ${orderId}`
+            });
         }
 
+        // Log missing card details in the populated data for debugging
+        if (order.items.some(item => !item.card)) {
+            console.warn(`Order ID ${orderId}: Some cards in the order items could not be populated.`);
+        }
+
+        // Respond with the found order
         res.status(200).json(order);
     } catch (err) {
-        res.status(500).json({ message: "Error fetching order", error: err.message });
+        console.error(`Error fetching order with ID ${req.params.orderId}:`, err.message);
+        res.status(500).json({ 
+            message: "Error fetching order", 
+            error: err.message 
+        });
     }
 };
 
