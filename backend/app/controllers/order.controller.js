@@ -91,6 +91,7 @@ exports.getOrderById = async (req, res) => {
 
         // Fetch the order with populated data
         const order = await Order.findById(orderId)
+            .select('-user -paymentDetails')  // Exclude user ID and payment details
             .populate({
                 path: 'items',
                 populate: {
