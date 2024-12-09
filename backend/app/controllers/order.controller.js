@@ -7,8 +7,18 @@ const fetch = require('node-fetch');
 exports.createOrder = async (req, res) => {
     try {
         const { items, shippingAddress, totalAmount, paymentDetails } = req.body;
-        
+
+        // Validate required fields
+        if (!items || !shippingAddress || !totalAmount || !paymentDetails) {
+            return res.status(400).json({ message: "Missing required order fields." });
+        }
+
+        // Create order items
         const orderItems = await Promise.all(items.map(async (item) => {
+            if (!item.cardId || !item.quantity) {
+                throw new Error("Invalid order item: Missing cardId or quantity.");
+            }
+
             const orderItem = new OrderItem({
                 card: item.cardId,
                 quantity: item.quantity
@@ -16,16 +26,20 @@ exports.createOrder = async (req, res) => {
             return await orderItem.save();
         }));
 
+        // Construct and save the order
         const order = new Order({
             user: req.userId || null,
             items: orderItems.map(item => item._id),
             shippingAddress,
             totalAmount,
+            paymentDetails,
             paymentStatus: "Paid",
             orderStatus: "Processing"
         });
 
         const savedOrder = await order.save();
+
+        // Populate the saved order for the response
         const populatedOrder = await Order.findById(savedOrder._id)
             .populate({
                 path: 'items',
@@ -36,24 +50,31 @@ exports.createOrder = async (req, res) => {
                 }
             });
 
-        // Send order confirmation email with fully populated order
-        await emailService.sendOrderConfirmation(populatedOrder);
+        // Log success for debugging
+        console.log("Order created successfully:", populatedOrder);
 
-        // Send response immediately
+        // Send response immediately to the client
         res.status(201).json(populatedOrder);
 
-        // Handle notifications and processing asynchronously
-        const response = await fetch('http://localhost:3001/api/process-order', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                orderId: savedOrder._id.toString()
-            })
-        });
+        // Handle asynchronous tasks (email and notifications) after response
+        process.nextTick(async () => {
+            try {
+                // Send order confirmation email
+                await emailService.sendOrderConfirmation(populatedOrder);
 
+                // Trigger order processing webhook
+                await fetch('http://localhost:3001/api/process-order', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ orderId: savedOrder._id.toString() })
+                });
+                console.log("Asynchronous tasks completed: Email and webhook triggered.");
+            } catch (asyncError) {
+                console.error("Error in asynchronous tasks:", asyncError.message);
+            }
+        });
     } catch (error) {
+        console.error("Error creating order:", error.message);
         res.status(500).json({ message: "Error creating order", error: error.message });
     }
 };
