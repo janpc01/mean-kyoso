@@ -30,8 +30,8 @@ mongoose
 const allowedOrigins = [
     "https://kyosocards.com",
     "https://mango-plant-0d19e2110.4.azurestaticapps.net",
+    "https://blue-cliff-0a661b310.4.azurestaticapps.net",
     "https://order-processor-ewexgkcvhnhzbqhc.canadacentral-01.azurewebsites.net",
-    "http://localhost:4200"
 ];
 
 app.use(cors({
