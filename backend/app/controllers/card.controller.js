@@ -58,7 +58,7 @@ exports.updateCard = async (req, res) => {
 // Delete a card
 exports.deleteCard = async (req, res) => {
     try {
-        const { cardId } = req.params;
+        const { id } = req.params;
 
         const deletedCard = await Card.findByIdAndDelete(cardId);
 
