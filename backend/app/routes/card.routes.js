@@ -5,6 +5,7 @@ module.exports = function(app) {
   // Protected routes (require authentication)
   app.post("/api/cards", [verifyToken], cards.createCard);
   app.get("/api/cards/user/:userId", [verifyToken], cards.getUserCards);
+  app.delete("/api/cards/:id", [verifyToken], cards.deleteCard);
   
   // Public routes
   app.get("/api/cards/search", cards.searchCards);
