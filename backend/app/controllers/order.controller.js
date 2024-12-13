@@ -3,6 +3,7 @@ const { Order, OrderItem } = require('../models/order.model');
 const Card = require('../models/card.model');
 const emailService = require('../services/email.service');
 const fetch = require('node-fetch');
+require('dotenv').config();
 
 exports.createOrder = async (req, res) => {
     try {
@@ -63,10 +64,19 @@ exports.createOrder = async (req, res) => {
                 await emailService.sendOrderConfirmation(populatedOrder);
 
                 // Trigger order processing webhook
-                await fetch('http://localhost:3001/api/process-order', {
+                await fetch('https://order-processor-ewexgkcvhnhzbqhc.canadacentral-01.azurewebsites.net/api/process-order', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Origin': 'https://kyoso-backend-dhheg8akajdre6ce.canadacentral-01.azurewebsites.net'
+                    },
                     body: JSON.stringify({ orderId: savedOrder._id.toString() })
+                })
+                .catch(error => {
+                    console.error("Error triggering order processing:", error.message);
+                    // Optionally update order status to indicate processing failed
+                    Order.findByIdAndUpdate(savedOrder._id, { orderStatus: "ProcessingFailed" })
+                        .catch(err => console.error("Error updating order status:", err));
                 });
                 console.log("Asynchronous tasks completed: Email and webhook triggered.");
             } catch (asyncError) {
